@@ -17,7 +17,7 @@ class MonominoIndex {
 
   static MonominoLookup primeTileFrom(int tileIndex) {
     /* prime blobs */
-    if([0,1,5,7,17,21,23,29,31,85,87,95,119,127,255].contains(tileIndex)) {
+    if ([0, 1, 5, 7, 17, 21, 23, 29, 31, 85, 87, 95, 119, 127, 255].contains(tileIndex)) {
       return MonominoLookup(tileIndex);
     }
 
@@ -26,12 +26,12 @@ class MonominoIndex {
       return MonominoLookup(1, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [20,80,65].indexOf(tileIndex);
+    rotationIndex = [20, 80, 65].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(5, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [28,112,193].indexOf(tileIndex);
+    rotationIndex = [28, 112, 193].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(7, numRotations: rotationIndex + 1);
     }
@@ -40,32 +40,32 @@ class MonominoIndex {
       return MonominoLookup(17, numRotations: 1);
     }
 
-    rotationIndex = [84,81,_noice].indexOf(tileIndex);
+    rotationIndex = [84, 81, _noice].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(21, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [92,113,197].indexOf(tileIndex);
+    rotationIndex = [92, 113, 197].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(23, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [116,209,71].indexOf(tileIndex);
+    rotationIndex = [116, 209, 71].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(29, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [124,241,199].indexOf(tileIndex);
+    rotationIndex = [124, 241, 199].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(31, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [93,117,213].indexOf(tileIndex);
+    rotationIndex = [93, 117, 213].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(87, numRotations: rotationIndex + 1);
     }
 
-    rotationIndex = [125,245,215].indexOf(tileIndex);
+    rotationIndex = [125, 245, 215].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(95, numRotations: rotationIndex + 1);
     }
@@ -74,14 +74,11 @@ class MonominoIndex {
       return MonominoLookup(119, numRotations: 1);
     }
 
-    rotationIndex = [253,247,223].indexOf(tileIndex);
+    rotationIndex = [253, 247, 223].indexOf(tileIndex);
     if (rotationIndex >= 0) {
-      return MonominoLookup(127, numRotations: 1);
+      return MonominoLookup(127, numRotations: rotationIndex + 1);
     }
 
-    throw ArgumentError.value(
-        tileIndex,
-        "tileIndex",
-        "Not an index to a clumsy-packed S-V2E2 set");
+    throw ArgumentError.value(tileIndex, "tileIndex", "Not an index to a clumsy-packed S-V2E2 set");
   }
 }

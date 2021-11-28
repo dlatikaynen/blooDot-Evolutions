@@ -1,12 +1,13 @@
 import 'dart:ui';
 
+import 'package:bloo_dot_evolutions/algo/blob_tile_painter_base.dart';
 import 'package:bloo_dot_evolutions/algo/blob_tileset_painter.dart';
-import 'package:bloo_dot_evolutions/level/tilesets/gray_wall_tile_set.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 abstract class LevelBase extends SpriteComponent with HasGameRef {
   static const tileSize = 33.0;
+  BlobTilePainterBase? _selectedTileSet;
 
   Future<Sprite> createLevel();
 
@@ -16,53 +17,17 @@ abstract class LevelBase extends SpriteComponent with HasGameRef {
     size = sprite!.originalSize;
     return super.onLoad();
   }
-}
 
-class Level extends LevelBase {
-  @override
-  Future<Sprite> createLevel() async {
-    int numTilesX = 200, numTilesY = 77;
+  void selectTileSet(BlobTilePainterBase tileSet) => _selectedTileSet = tileSet;
 
-    var sink = PictureRecorder();
-    var canvas = Canvas(sink);
-    canvas.drawRect(Rect.fromLTWH(0, 0, numTilesX * LevelBase.tileSize, numTilesY * LevelBase.tileSize),
-        Paint()..color = Colors.black54);
+  void placeTile(Canvas paintTo, int gridX, int gridY, int tileIndex) {
+    if (_selectedTileSet == null) {
+      return;
+    }
 
-    var centerRect = Rect.fromLTWH((numTilesX / 2) * LevelBase.tileSize, (numTilesY / 2) * LevelBase.tileSize,
-        LevelBase.tileSize, LevelBase.tileSize);
-    canvas.drawRect(
-        centerRect,
-        Paint()
-          ..color = Colors.grey
-          ..style = PaintingStyle.stroke);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(2 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(3 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(20 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(50 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(3 * LevelBase.tileSize, 3 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.save();
-    canvas.translate(centerRect.left, centerRect.top);
-    BlobTileSetPainter(GreyWallTileSet(), canvas).paintTile(209);
-    canvas.restore();
-
-    var picture = sink.endRecording();
-    var image = await picture.toImage(numTilesX * LevelBase.tileSize.toInt(), numTilesY * LevelBase.tileSize.toInt());
-    return Sprite(image);
+    paintTo.save();
+    paintTo.translate(gridX * tileSize, gridY * tileSize);
+    BlobTileSetPainter(_selectedTileSet!, paintTo).paintTile(tileIndex);
+    paintTo.restore();
   }
 }

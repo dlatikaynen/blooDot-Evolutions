@@ -3,10 +3,10 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import 'arena/follower.dart';
-import 'arena/level_base.dart';
+import 'level/level_001.dart';
 
 class BlooDotEvolutionsGame extends FlameGame {
-  final _level = Level();
+  final _level = Level001();
   final Follower _follower = Follower();
 
   @override
