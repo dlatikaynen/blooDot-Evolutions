@@ -1,6 +1,6 @@
-# bloo_dot_evolutions
+# blooDot Evolutions
 
-A Game of Life
+A different Game of Life
 
 ## Getting Started
 
