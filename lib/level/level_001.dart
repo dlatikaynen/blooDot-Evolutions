@@ -9,32 +9,23 @@ import 'package:flutter/material.dart';
 class Level001 extends LevelBase {
   @override
   Future<Sprite> createLevel() async {
-    int numTilesX = 200, numTilesY = 77;
+    int numTilesX = 50, numTilesY = 20;
 
     var sink = PictureRecorder();
     var canvas = Canvas(sink);
-    canvas.drawRect(Rect.fromLTWH(0, 0, numTilesX * LevelBase.tileSize, numTilesY * LevelBase.tileSize),
-        Paint()..color = Colors.black54);
+    var linePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..color = Colors.white12;
 
-    canvas.drawRect(
-        const Rect.fromLTWH(2 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
+    for (var y = 1.0; y < numTilesY; ++y) {
+      canvas.drawLine(
+          Offset(0, y * LevelBase.tileSize), Offset(numTilesX * LevelBase.tileSize, y * LevelBase.tileSize), linePaint);
+    }
 
-    canvas.drawRect(
-        const Rect.fromLTWH(3 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(20 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(50 * LevelBase.tileSize, 2 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
-
-    canvas.drawRect(
-        const Rect.fromLTWH(3 * LevelBase.tileSize, 3 * LevelBase.tileSize, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()..color = Colors.grey);
+    for (var x = 1; x < numTilesX; ++x) {
+      canvas.drawLine(
+          Offset(x * LevelBase.tileSize, 0), Offset(x * LevelBase.tileSize, numTilesY * LevelBase.tileSize), linePaint);
+    }
 
     var midPointX = numTilesX ~/ 2;
     var midPointY = numTilesY ~/ 2 - 4;

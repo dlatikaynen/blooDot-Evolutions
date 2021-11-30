@@ -1,7 +1,7 @@
 import 'package:bloo_dot_evolutions/algo/monomino_lookup.dart';
 
 class MonominoIndex {
-  static const _noice = 69;
+  static const noice = 69;
 
   /* corner bitmask keys in the clumsy pack */
   static const edgeN = 1;
@@ -17,7 +17,7 @@ class MonominoIndex {
 
   static MonominoLookup primeTileFrom(int tileIndex) {
     /* prime blobs */
-    if ([0, 1, 5, 7, 17, 21, 23, 29, 31, 85, 87, 95, 119, 127, 255].contains(tileIndex)) {
+    if (MonominoLookup.primeTiles.contains(tileIndex)) {
       return MonominoLookup(tileIndex);
     }
 
@@ -40,7 +40,7 @@ class MonominoIndex {
       return MonominoLookup(17, numRotations: 1);
     }
 
-    rotationIndex = [84, 81, _noice].indexOf(tileIndex);
+    rotationIndex = [84, 81, noice].indexOf(tileIndex);
     if (rotationIndex >= 0) {
       return MonominoLookup(21, numRotations: rotationIndex + 1);
     }
@@ -79,6 +79,22 @@ class MonominoIndex {
       return MonominoLookup(127, numRotations: rotationIndex + 1);
     }
 
-    throw ArgumentError.value(tileIndex, "tileIndex", "Not an index to a clumsy-packed S-V2E2 set");
+    throw ArgumentError.value(tileIndex, "tileIndex", "Not an index to a S-V2E2 set");
+  }
+
+  static int coalescedTileFromNeighborConfiguration(int neighborConfiguration) =>
+      MonominoLookup.seamLess[neighborConfiguration];
+
+  static int coalescedTileFromNeighbors(bool e, bool ne, bool n, bool nw, bool w, bool sw, bool s, bool se) {
+    var neighborConfiguration = (nw ? 1 : 0) +
+        ((n ? 1 : 0) << 1) +
+        ((ne ? 1 : 0) << 2) +
+        ((e ? 1 : 0) << 3) +
+        ((se ? 1 : 0) << 4) +
+        ((s ? 1 : 0) << 5) +
+        ((sw ? 1 : 0) << 6) +
+        ((w ? 1 : 0) << 7);
+
+    return coalescedTileFromNeighborConfiguration(neighborConfiguration);
   }
 }
