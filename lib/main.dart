@@ -4,24 +4,27 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import 'arena/follower.dart';
+import 'arena/level_base.dart';
 import 'level/level_001.dart';
 
 class BlooDotEvolutionsGame extends FlameGame {
-  final _level = Level001();
-  final Follower _follower = Follower();
+  LevelBase? _level;
+  late Follower _follower;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    if (!_level.isLoaded) {
-      await _level.onLoad();
+    _level ??= Level001(this);
+    if (!_level!.isLoaded) {
+      _follower = Follower();
+      await _level!.onLoad();
     }
 
-    add(_level);
+    add(_level!);
     add(_follower);
 
-    _follower.position = _follower.absoluteToLocal(_level.size / 2 - _follower.size / 2);
-    camera.followComponent(_follower, worldBounds: Rect.fromLTRB(0, 0, _level.size.x, _level.size.y));
+    _follower.position = _follower.absoluteToLocal(_level!.size / 2 - _follower.size / 2);
+    camera.followComponent(_follower, worldBounds: Rect.fromLTRB(0, 0, _level!.size.x, _level!.size.y));
   }
 
   @override
