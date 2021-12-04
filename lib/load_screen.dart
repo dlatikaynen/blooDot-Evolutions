@@ -40,8 +40,7 @@ class LoadScreenState extends State<LoadScreenWidget> {
                       ])),
                   SizedBox(height: 50),
                   Text("© 2019-2021 flamingin sarjakuvat oy",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontFamily: "Courgette", fontSize: 29, color: Colors.blueAccent))
+                      textAlign: TextAlign.center, style: TextStyle(fontSize: 20, color: Colors.blueAccent))
                 ], mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center))));
   }
 
