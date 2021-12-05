@@ -29,7 +29,7 @@ class BlooDotEvolutionsGame extends FlameGame {
 
   @override
   void update(double dt) {
-    _follower.position.x += 42 * dt;
+    _follower.position.x += 12 * dt;
     super.update(dt);
   }
 }

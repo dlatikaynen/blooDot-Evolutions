@@ -6,6 +6,8 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import 'arena_object.dart';
+
 abstract class LevelBase extends SpriteComponent {
   static const tileSize = 33.0;
   final FlameGame gameRef;
@@ -13,6 +15,9 @@ abstract class LevelBase extends SpriteComponent {
     ..style = PaintingStyle.stroke
     ..color = Colors.white12;
 
+  late List<ArenaObject> staticObjects = [];
+  late List<ArenaObject> activeObjects = [];
+  late List<List<ArenaObject?>> arena = [];
   BlobTilePainterBase? _selectedTileSet;
   late Canvas canvas;
 
@@ -26,7 +31,7 @@ abstract class LevelBase extends SpriteComponent {
 
   LevelBase(this.gameRef);
 
-  Future paintSpecific();
+  Future drawSpecific();
 
   @override
   Future<void>? onLoad() async {
@@ -68,18 +73,33 @@ abstract class LevelBase extends SpriteComponent {
       return;
     }
 
+    addStaticTileObject(gridX, gridY, tileIndex);
     paintTo.save();
     paintTo.translate(gridX * tileSize, gridY * tileSize);
     BlobTileSetPainter(_selectedTileSet!, paintTo).paintTile(tileIndex);
     paintTo.restore();
   }
 
+  void addStaticTileObject(int gridX, int gridY, int tileIndex) {
+    var object = ArenaObject()
+      ..anchorTileX = gridX
+      ..anchorTileY = gridY
+      ..boundingBox = const Offset(LevelBase.tileSize, LevelBase.tileSize)
+      ..currentPosition = Offset(gridX * LevelBase.tileSize, gridY * LevelBase.tileSize)
+      ..fromTileSet = _selectedTileSet!
+      ..indexInTileSet = tileIndex;
+
+    arena[gridX][gridY] = object;
+    staticObjects.add(object);
+  }
+
   Future<Sprite> _createLevel() async {
+    arena = List.filled(levelNumTilesX, List.filled(levelNumTilesY, null));
     var sink = PictureRecorder();
     canvas = Canvas(sink);
     await paintBackdrop();
     await paintTileGrid();
-    await paintSpecific();
+    await drawSpecific();
     var picture = sink.endRecording();
     var image =
         await picture.toImage(levelNumTilesX * LevelBase.tileSize.toInt(), levelNumTilesY * LevelBase.tileSize.toInt());

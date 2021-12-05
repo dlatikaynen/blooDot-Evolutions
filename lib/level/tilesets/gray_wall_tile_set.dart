@@ -28,12 +28,6 @@ class GreyWallTileSet extends BlobTilePainterBase {
   @override
   paintBaseTile(Canvas paintTo, int primeIndex) {
     paintTo.drawRect(const Rect.fromLTWH(0, 0, LevelBase.tileSize, LevelBase.tileSize), basePaint);
-    paintTo.drawRect(
-        const Rect.fromLTWH(0, 0, LevelBase.tileSize, LevelBase.tileSize),
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..color = Colors.lightGreenAccent);
-
     switch (primeIndex) {
       case MonominoLookup.primeIndexShy:
         paintTo.drawRect(const Rect.fromLTRB(cornerNWx, cornerNWy, cornerSEx, cornerSEy), decoPaint);
