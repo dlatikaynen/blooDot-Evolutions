@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:bloo_dot_evolutions/main.dart';
 import 'package:flutter/material.dart';
