@@ -35,6 +35,14 @@ class Level001 extends LevelBase {
       }
     }
 
+    placeStaticTile(canvas, 3, 3, 0, 0);
+    placeStaticTile(canvas, 4, 3, 1, 0);
+    placeStaticTile(canvas, 5, 3, 2, 0);
+    placeStaticTile(canvas, 3, 4, 0, 1);
     placeStaticTile(canvas, 4, 4, 1, 1);
+    placeStaticTile(canvas, 5, 4, 2, 1);
+    placeStaticTile(canvas, 3, 5, 0, 2);
+    placeStaticTile(canvas, 4, 5, 1, 2);
+    placeStaticTile(canvas, 5, 5, 2, 2);
   }
 }

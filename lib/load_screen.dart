@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloo_dot_evolutions/main.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 class LoadScreenWidget extends StatefulWidget {
@@ -17,6 +18,7 @@ class LoadScreenState extends State<LoadScreenWidget> {
   initState() {
     super.initState();
     timer = Timer(const Duration(seconds: 15), _onFinishedLoading);
+    FlameAudio.play('opening_sample.ogg');
   }
 
   @override
