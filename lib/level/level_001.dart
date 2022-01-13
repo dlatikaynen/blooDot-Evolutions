@@ -26,13 +26,15 @@ class Level001 extends LevelBase {
 
   @override
   Future drawSpecific() async {
-    selectTileSet(GreyWallTileSet());
+    await selectTileSet(GreyWallTileSet());
     for (var y = 0; y < 12; ++y) {
       for (var x = 0; x < 20; ++x) {
         if (_walls[y > 5 ? (11 - y) : y].substring(x, x + 1) == "1") {
-          placeTile(canvas, x + 2, y + 2, MonominoLookup.primeIndexShy);
+          placeBlobTile(canvas, x + 2, y + 2, MonominoLookup.primeIndexShy);
         }
       }
     }
+
+    placeStaticTile(canvas, 4, 4, 1, 1);
   }
 }

@@ -17,11 +17,10 @@ class BlooDotEvolutionsGame extends FlameGame {
     _level ??= Level001(this);
     if (!_level!.isLoaded) {
       _follower = Follower();
-      await _level!.onLoad();
     }
 
-    add(_level!);
-    add(_follower);
+    await add(_level!);
+    await add(_follower);
 
     _follower.position = _follower.absoluteToLocal(_level!.size / 2 - _follower.size / 2);
     camera.followComponent(_follower, worldBounds: Rect.fromLTRB(0, 0, _level!.size.x, _level!.size.y));

@@ -5,7 +5,7 @@ import 'package:bloo_dot_evolutions/algo/monomino_lookup.dart';
 import 'package:bloo_dot_evolutions/arena/level_base.dart';
 import 'package:flutter/material.dart';
 
-class GreyWallTileSet extends BlobTilePainterBase {
+class GreyWallTileSet extends BlobTilePainter {
   /* https://www.qb64.org/wiki/COLOR */
   final Paint basePaint = Paint()
     ..color = const Color.fromARGB(0xff, 0x54, 0x54, 0x54)
@@ -26,7 +26,10 @@ class GreyWallTileSet extends BlobTilePainterBase {
   static const cornerSEy = cornerSWy;
 
   @override
-  paintBaseTile(Canvas paintTo, int primeIndex) {
+  String get spriteSheetName => "tile_set_001.png";
+
+  @override
+  paintBlobTile(Canvas paintTo, int primeIndex) {
     paintTo.drawRect(const Rect.fromLTWH(0, 0, LevelBase.tileSize, LevelBase.tileSize), basePaint);
     switch (primeIndex) {
       case MonominoLookup.primeIndexShy:

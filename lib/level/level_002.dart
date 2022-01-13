@@ -17,10 +17,10 @@ class Level002 extends LevelBase {
 
   @override
   Future drawSpecific() async {
-    selectTileSet(GreyWallTileSet());
+    await selectTileSet(GreyWallTileSet());
     for (var y = 0; y < 7; ++y) {
       for (var x = 0; x < 7; ++x) {
-        placeTile(canvas, midTileX + x, midTileY + y - 4, MonominoLookup.clumsyPack[y][x]);
+        placeBlobTile(canvas, midTileX + x, midTileY + y - 4, MonominoLookup.clumsyPack[y][x]);
       }
     }
   }

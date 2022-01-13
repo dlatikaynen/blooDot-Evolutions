@@ -1,5 +1,7 @@
 import 'dart:ui';
 
-abstract class BlobTilePainterBase {
-  paintBaseTile(Canvas paintTo, int primeIndex);
+import 'package:bloo_dot_evolutions/level/tilesets/tile_painter_base.dart';
+
+abstract class BlobTilePainter extends TilePainter {
+  paintBlobTile(Canvas paintTo, int primeIndex);
 }

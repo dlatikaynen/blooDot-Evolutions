@@ -7,6 +7,6 @@ class ArenaObject {
   late int anchorTileY;
   late Offset currentPosition;
   late Offset boundingBox;
-  BlobTilePainterBase? fromTileSet;
+  BlobTilePainter? fromTileSet;
   late int indexInTileSet = -1;
 }

@@ -10,6 +10,7 @@ import 'arena_object.dart';
 
 abstract class LevelBase extends SpriteComponent {
   static const tileSize = 33.0;
+
   final FlameGame gameRef;
   final linePaint = Paint()
     ..style = PaintingStyle.stroke
@@ -18,7 +19,7 @@ abstract class LevelBase extends SpriteComponent {
   late List<ArenaObject> staticObjects = [];
   late List<ArenaObject> activeObjects = [];
   late List<List<ArenaObject?>> arena = [];
-  BlobTilePainterBase? _selectedTileSet;
+  BlobTilePainter? _selectedTileSet;
   late Canvas canvas;
 
   String get levelName;
@@ -40,7 +41,10 @@ abstract class LevelBase extends SpriteComponent {
     return super.onLoad();
   }
 
-  void selectTileSet(BlobTilePainterBase tileSet) => _selectedTileSet = tileSet;
+  Future selectTileSet(BlobTilePainter tileSet) async {
+    await tileSet.load();
+    _selectedTileSet = tileSet;
+  }
 
   Future paintBackdrop() async {
     var universeImage = await gameRef.images.load("universe_seamless.png");
@@ -68,7 +72,7 @@ abstract class LevelBase extends SpriteComponent {
     }
   }
 
-  void placeTile(Canvas paintTo, int gridX, int gridY, int tileIndex) {
+  void placeBlobTile(Canvas paintTo, int gridX, int gridY, int tileIndex) {
     if (_selectedTileSet == null) {
       return;
     }
@@ -76,7 +80,18 @@ abstract class LevelBase extends SpriteComponent {
     addStaticTileObject(gridX, gridY, tileIndex);
     paintTo.save();
     paintTo.translate(gridX * tileSize, gridY * tileSize);
-    BlobTileSetPainter(_selectedTileSet!, paintTo).paintTile(tileIndex);
+    TileSetPainter(_selectedTileSet!, paintTo).paintBlobTile(tileIndex);
+    paintTo.restore();
+  }
+
+  void placeStaticTile(Canvas paintTo, int gridX, int gridY, int tileIndexX, int tileIndexY) {
+    if (_selectedTileSet == null) {
+      return;
+    }
+
+    paintTo.save();
+    paintTo.translate(gridX * tileSize, gridY * tileSize);
+    TileSetPainter(_selectedTileSet!, paintTo).paintStaticTile(tileIndexX, tileIndexY);
     paintTo.restore();
   }
 
