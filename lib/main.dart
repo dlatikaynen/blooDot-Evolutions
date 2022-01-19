@@ -4,8 +4,10 @@ import 'dart:ui' as ui;
 import 'package:bloo_dot_evolutions/load_screen.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
+import 'arena/arena.dart';
 import 'arena/follower.dart';
 import 'arena/level_base.dart';
 import 'level/level_001.dart';
@@ -58,8 +60,10 @@ late double deltaT = 0;
 late double frameAverage = 0;
 final floorImages = List<ui.Image>.empty(growable: true);
 final rooofImages = List<ui.Image>.empty(growable: true);
-
+late int frameNumber = 0;
 late double roofX = 0.0;
+late Arena arena;
+late bool movingLeft = true;
 
 void onMetricsChanged() {
   devicePixelRatio = ui.window.devicePixelRatio;
@@ -70,12 +74,15 @@ void onMetricsChanged() {
 void beginFrame(Duration timeStamp) async {
   final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
   if (floorImages.isEmpty) {
+    arena = Arena(paintBounds);
     for (var y = 0; y < 3; ++y) {
       for (var x = 0; x < 3; ++x) {
         await prepareFloorImage(x, y, paintBounds);
         await prepareRooofImage(x, y, paintBounds);
       }
     }
+
+    arena.moveInWorld(const Offset(500, 0));
   }
 
   final ui.PictureRecorder recorder = ui.PictureRecorder();
@@ -88,6 +95,11 @@ void beginFrame(Duration timeStamp) async {
   frameAverage += deltaT;
   frameAverage /= 2.0;
   final fps = 1.0 / frameAverage;
+
+  if (++frameNumber % 1000 == 0) {
+    FlameAudio.play('opening_sample.ogg');
+    movingLeft = !movingLeft;
+  }
 
   // Here we determine the rotation according to the timeStamp given to us by
   // the engine.
@@ -104,12 +116,18 @@ void beginFrame(Duration timeStamp) async {
   canvas.restore();
   */
 
-  canvas.drawImageRect(floorImages[1 * 3 + 1], paintBounds, paintBounds, Paint());
-  canvas.drawImageRect(
-      rooofImages[1 * 3 + 1],
-      paintBounds,
-      Rect.fromLTWH(-paintBounds.width + 10 * roofX++, paintBounds.top, paintBounds.width, paintBounds.height),
-      Paint());
+  var blitters = arena.viewportBlitRegions;
+  for (var blitter in blitters) {
+    var srcIndex = blitter.iy * 3 + blitter.ix;
+    canvas.drawImageRect(floorImages[srcIndex], blitter.srcRect, blitter.dstRect, Paint());
+    canvas.drawImageRect(rooofImages[srcIndex], blitter.srcRect, blitter.dstRect, Paint());
+  }
+
+  if (movingLeft) {
+    arena.moveInWorld(const Offset(-1, 0));
+  } else {
+    arena.moveInWorld(const Offset(1, 0));
+  }
 
   canvas.translate(paintBounds.width / 2.0, paintBounds.height / 2.0);
   TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "${fps.toStringAsFixed(0)} fps");
@@ -170,9 +188,10 @@ Future prepareRooofImage(int ix, int iy, ui.Rect bounds) async {
 }
 
 int ixFromIndex(int index) => index % 3;
-int iyFromIndex(int index) => (index / 3).round();
+int iyFromIndex(int index) => (index / 3).floor();
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   ui.window.onBeginFrame = beginFrame;
   ui.window.scheduleFrame();
   ui.window.onMetricsChanged = onMetricsChanged;
