@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -57,28 +56,32 @@ late double devicePixelRatio = ui.window.devicePixelRatio;
 late double t = 0;
 late double deltaT = 0;
 late double frameAverage = 0;
+final floorImages = List<ui.Image>.empty(growable: true);
+final rooofImages = List<ui.Image>.empty(growable: true);
+
+late double roofX = 0.0;
 
 void onMetricsChanged() {
   devicePixelRatio = ui.window.devicePixelRatio;
+  floorImages.clear();
+  rooofImages.clear();
 }
 
-void beginFrame(Duration timeStamp) {
-  // The timeStamp argument to beginFrame indicates the timing information we
-  // should use to clock our animations. It's important to use timeStamp rather
-  // than reading the system time because we want all the parts of the system to
-  // coordinate the timings of their animations. If each component read the
-  // system clock independently, the animations that we processed later would be
-  // slightly ahead of the animations we processed earlier.
-
-  // PAINT
-
+void beginFrame(Duration timeStamp) async {
   final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
+  if (floorImages.isEmpty) {
+    for (var y = 0; y < 3; ++y) {
+      for (var x = 0; x < 3; ++x) {
+        await prepareFloorImage(x, y, paintBounds);
+        await prepareRooofImage(x, y, paintBounds);
+      }
+    }
+  }
+
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, paintBounds);
-  canvas.translate(paintBounds.width / 2.0, paintBounds.height / 2.0);
+  //canvas.translate(paintBounds.width / 2.0, paintBounds.height / 2.0);
 
-  // Here we determine the rotation according to the timeStamp given to us by
-  // the engine.
   final double curT = timeStamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1800.0;
   deltaT = t == 0.0 ? 0.0 : curT - t;
   t = curT;
@@ -86,6 +89,9 @@ void beginFrame(Duration timeStamp) {
   frameAverage /= 2.0;
   final fps = 1.0 / frameAverage;
 
+  // Here we determine the rotation according to the timeStamp given to us by
+  // the engine.
+  /*
   canvas.save();
   canvas.rotate(math.pi * (t % 1.0));
   canvas.drawRect(const ui.Rect.fromLTRB(-200.0, -200.0, 200.0, 200.0),
@@ -96,8 +102,17 @@ void beginFrame(Duration timeStamp) {
       ui.Paint()..color = ui.Color.fromARGB(255, 17, t.round() % 255, 250));
 
   canvas.restore();
+  */
 
-  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: fps.toStringAsFixed(0));
+  canvas.drawImageRect(floorImages[1 * 3 + 1], paintBounds, paintBounds, Paint());
+  canvas.drawImageRect(
+      rooofImages[1 * 3 + 1],
+      paintBounds,
+      Rect.fromLTWH(-paintBounds.width + 10 * roofX++, paintBounds.top, paintBounds.width, paintBounds.height),
+      Paint());
+
+  canvas.translate(paintBounds.width / 2.0, paintBounds.height / 2.0);
+  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "${fps.toStringAsFixed(0)} fps");
   TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
   tp.layout();
   tp.paint(canvas, const Offset(-5.0, -5.0));
@@ -109,6 +124,7 @@ void beginFrame(Duration timeStamp) {
     ..[5] = devicePixelRatio
     ..[10] = 1.0
     ..[15] = 1.0;
+
   final ui.SceneBuilder sceneBuilder = ui.SceneBuilder()
     ..pushTransform(deviceTransform)
     ..addPicture(ui.Offset.zero, picture)
@@ -120,6 +136,41 @@ void beginFrame(Duration timeStamp) {
   // to produce the next frame.
   ui.window.scheduleFrame();
 }
+
+Future prepareFloorImage(int ix, int iy, ui.Rect bounds) async {
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  final ui.Canvas canvas = ui.Canvas(recorder, bounds);
+  canvas.drawRRect(
+      RRect.fromRectAndRadius(bounds.inflate(-30), const Radius.circular(11)),
+      Paint()
+        ..color = Colors.indigoAccent
+        ..style = ui.PaintingStyle.stroke
+        ..strokeWidth = 7);
+
+  floorImages.add(await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round()));
+}
+
+Future prepareRooofImage(int ix, int iy, ui.Rect bounds) async {
+  final i = rooofImages.length;
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  final ui.Canvas canvas = ui.Canvas(recorder, bounds);
+  canvas.drawRRect(
+      RRect.fromRectAndRadius(bounds.inflate(-20), const Radius.circular(11)),
+      Paint()
+        ..color = Colors.teal
+        ..style = ui.PaintingStyle.stroke
+        ..strokeWidth = 7);
+
+  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "(${ixFromIndex(i)},${iyFromIndex(i)})");
+  TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
+  tp.layout();
+  tp.paint(canvas, const Offset(35, 35));
+
+  rooofImages.add(await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round()));
+}
+
+int ixFromIndex(int index) => index % 3;
+int iyFromIndex(int index) => (index / 3).round();
 
 void main() {
   ui.window.onBeginFrame = beginFrame;
