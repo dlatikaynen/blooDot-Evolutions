@@ -7,6 +7,7 @@ import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
+import 'extensions/list_swap.dart';
 import 'arena/arena.dart';
 import 'arena/follower.dart';
 import 'arena/level_base.dart';
@@ -54,6 +55,7 @@ void main2() async {
   runApp(const LoadScreenWidget());
 }
 
+late ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
 late double devicePixelRatio = ui.window.devicePixelRatio;
 late double t = 0;
 late double deltaT = 0;
@@ -67,12 +69,12 @@ late bool movingLeft = true;
 
 void onMetricsChanged() {
   devicePixelRatio = ui.window.devicePixelRatio;
+  paintBounds = ui.Offset.zero & (ui.window.physicalSize / devicePixelRatio);
   floorImages.clear();
   rooofImages.clear();
 }
 
 void beginFrame(Duration timeStamp) async {
-  final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
   if (floorImages.isEmpty) {
     arena = Arena(paintBounds);
     for (var y = 0; y < 3; ++y) {
@@ -148,11 +150,63 @@ void beginFrame(Duration timeStamp) async {
     ..addPicture(ui.Offset.zero, picture)
     ..pop();
   ui.window.render(sceneBuilder.build());
-
-  // After rendering the current frame of the animation, we ask the engine to
-  // schedule another frame. The engine will call beginFrame again when its time
-  // to produce the next frame.
   ui.window.scheduleFrame();
+}
+
+void _rolloverLeft() {
+  /*    0  1  2
+   *    3  4  5
+   *    6  7  8
+   *
+   *    0  2  1
+   *    3  5  4
+   *    6  8  7
+   *
+   *    2  0  1
+   *    5  3  4
+   *    8  6  7
+   */
+  floorImages.swap(1,2);
+  floorImages.swap(4,5);
+  floorImages.swap(7,8);
+  floorImages.swap(0,1);
+  floorImages.swap(3,4);
+  floorImages.swap(6,7);
+
+  rooofImages.swap(1,2);
+  rooofImages.swap(4,5);
+  rooofImages.swap(7,8);
+  rooofImages.swap(0,1);
+  rooofImages.swap(3,4);
+  rooofImages.swap(6,7);
+}
+
+void _rolloverRight() {
+  /*    0  1  2
+   *    3  4  5
+   *    6  7  8
+   *
+   *    1  0  2
+   *    4  3  5
+   *    7  6  8
+   *
+   *    1  2  0
+   *    4  5  3
+   *    7  8  6
+   */
+  floorImages.swap(0,1);
+  floorImages.swap(3,4);
+  floorImages.swap(6,7);
+  floorImages.swap(1,2);
+  floorImages.swap(4,5);
+  floorImages.swap(7,8);
+
+  rooofImages.swap(0,1);
+  rooofImages.swap(3,4);
+  rooofImages.swap(6,7);
+  rooofImages.swap(1,2);
+  rooofImages.swap(4,5);
+  rooofImages.swap(7,8);
 }
 
 Future prepareFloorImage(int ix, int iy, ui.Rect bounds) async {
@@ -190,8 +244,10 @@ Future prepareRooofImage(int ix, int iy, ui.Rect bounds) async {
 int ixFromIndex(int index) => index % 3;
 int iyFromIndex(int index) => (index / 3).floor();
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Flame.device.setLandscapeLeftOnly();
+  await Flame.device.fullScreen();
   ui.window.onBeginFrame = beginFrame;
   ui.window.scheduleFrame();
   ui.window.onMetricsChanged = onMetricsChanged;

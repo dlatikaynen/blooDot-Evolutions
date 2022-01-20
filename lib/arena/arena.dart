@@ -54,10 +54,6 @@ class Arena {
         break;
 
       case ViewportPartitioningSituation.twinIntersectionHorz:
-        _doubleIntersectionHorz[0].ix = 1;
-        _doubleIntersectionHorz[0].iy = 1;
-        _doubleIntersectionHorz[1].ix = 2;
-        _doubleIntersectionHorz[1].iy = 1;
         _doubleIntersectionHorz[0].srcRect = ui.Rect.fromLTWH(_doubleIntersectionHorz[0].srcRect.left + dx, 0,
             _doubleIntersectionHorz[0].srcRect.width - dx, viewportBounds.height);
 
@@ -69,6 +65,11 @@ class Arena {
 
         _doubleIntersectionHorz[1].dstRect = ui.Rect.fromLTWH(_doubleIntersectionHorz[1].dstRect.left - dx, 0,
             _doubleIntersectionHorz[1].dstRect.width + dx, viewportBounds.height);
+
+        if (_doubleIntersectionHorz[1].dstRect.left == 0) {
+          _partitioningSituation = ViewportPartitioningSituation.singleIntersection;
+          break;
+        }
 
         break;
 
@@ -94,12 +95,13 @@ class Arena {
         break;
 
       case ViewportPartitioningSituation.twinIntersectionHorz:
-        _doubleIntersectionHorz[0].ix = 0;
-        _doubleIntersectionHorz[0].iy = 1;
-        _doubleIntersectionHorz[1].ix = 1;
-        _doubleIntersectionHorz[1].iy = 1;
         _doubleIntersectionHorz[0].srcRect = ui.Rect.fromLTWH(_doubleIntersectionHorz[0].srcRect.left - dx, 0,
             _doubleIntersectionHorz[0].srcRect.width + dx, viewportBounds.height);
+
+        if (_doubleIntersectionHorz[0].srcRect.left == 0) {
+          _partitioningSituation = ViewportPartitioningSituation.singleIntersection;
+          break;
+        }
 
         _doubleIntersectionHorz[0].dstRect =
             ui.Rect.fromLTWH(0, 0, _doubleIntersectionHorz[0].dstRect.width + dx, viewportBounds.height);
@@ -143,6 +145,24 @@ class Arena {
 
       case ViewportPartitioningSituation.quadIntersection:
         _currentIntersection = _quadIntersection;
+        break;
+    }
+  }
+
+  void _rolloverLeft() {
+    switch (_partitioningSituation) {
+      case ViewportPartitioningSituation.twinIntersectionHorz:
+        _doubleIntersectionHorz[0].ix = _doubleIntersectionHorz[0].ix == 2 ? 0 : _doubleIntersectionHorz[0].ix + 1;
+        _doubleIntersectionHorz[1].ix = _doubleIntersectionHorz[1].ix == 2 ? 0 : _doubleIntersectionHorz[1].ix + 1;
+        break;
+    }
+  }
+
+  void _rolloverRight() {
+    switch (_partitioningSituation) {
+      case ViewportPartitioningSituation.twinIntersectionHorz:
+        _doubleIntersectionHorz[0].ix = _doubleIntersectionHorz[0].ix == 0 ? 2 : _doubleIntersectionHorz[0].ix - 1;
+        _doubleIntersectionHorz[1].ix = _doubleIntersectionHorz[1].ix == 0 ? 2 : _doubleIntersectionHorz[1].ix - 1;
         break;
     }
   }
