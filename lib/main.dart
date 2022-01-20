@@ -7,10 +7,10 @@ import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
-import 'extensions/list_swap.dart';
 import 'arena/arena.dart';
 import 'arena/follower.dart';
 import 'arena/level_base.dart';
+import 'extensions/list_swap.dart';
 import 'level/level_001.dart';
 
 class BlooDotEvolutionsGame extends FlameGame {
@@ -166,19 +166,19 @@ void _rolloverLeft() {
    *    5  3  4
    *    8  6  7
    */
-  floorImages.swap(1,2);
-  floorImages.swap(4,5);
-  floorImages.swap(7,8);
-  floorImages.swap(0,1);
-  floorImages.swap(3,4);
-  floorImages.swap(6,7);
+  floorImages.swap(1, 2);
+  floorImages.swap(4, 5);
+  floorImages.swap(7, 8);
+  floorImages.swap(0, 1);
+  floorImages.swap(3, 4);
+  floorImages.swap(6, 7);
 
-  rooofImages.swap(1,2);
-  rooofImages.swap(4,5);
-  rooofImages.swap(7,8);
-  rooofImages.swap(0,1);
-  rooofImages.swap(3,4);
-  rooofImages.swap(6,7);
+  rooofImages.swap(1, 2);
+  rooofImages.swap(4, 5);
+  rooofImages.swap(7, 8);
+  rooofImages.swap(0, 1);
+  rooofImages.swap(3, 4);
+  rooofImages.swap(6, 7);
 }
 
 void _rolloverRight() {
@@ -194,19 +194,19 @@ void _rolloverRight() {
    *    4  5  3
    *    7  8  6
    */
-  floorImages.swap(0,1);
-  floorImages.swap(3,4);
-  floorImages.swap(6,7);
-  floorImages.swap(1,2);
-  floorImages.swap(4,5);
-  floorImages.swap(7,8);
+  floorImages.swap(0, 1);
+  floorImages.swap(3, 4);
+  floorImages.swap(6, 7);
+  floorImages.swap(1, 2);
+  floorImages.swap(4, 5);
+  floorImages.swap(7, 8);
 
-  rooofImages.swap(0,1);
-  rooofImages.swap(3,4);
-  rooofImages.swap(6,7);
-  rooofImages.swap(1,2);
-  rooofImages.swap(4,5);
-  rooofImages.swap(7,8);
+  rooofImages.swap(0, 1);
+  rooofImages.swap(3, 4);
+  rooofImages.swap(6, 7);
+  rooofImages.swap(1, 2);
+  rooofImages.swap(4, 5);
+  rooofImages.swap(7, 8);
 }
 
 Future prepareFloorImage(int ix, int iy, ui.Rect bounds) async {
