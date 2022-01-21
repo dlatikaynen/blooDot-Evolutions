@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'arena/arena.dart';
 import 'arena/follower.dart';
 import 'arena/level_base.dart';
+import 'arena/viewport_sliver.dart';
+import 'enums/direction.dart';
 import 'extensions/list_swap.dart';
 import 'level/level_001.dart';
 
@@ -60,27 +62,36 @@ late double devicePixelRatio = ui.window.devicePixelRatio;
 late double t = 0;
 late double deltaT = 0;
 late double frameAverage = 0;
-final floorImages = List<ui.Image>.empty(growable: true);
-final rooofImages = List<ui.Image>.empty(growable: true);
+final viewportSlivers = List<ViewportSliver>.empty(growable: true);
 late int frameNumber = 0;
 late double roofX = 0.0;
 late Arena arena;
 late bool movingLeft = true;
+late int rolledOver = 0;
 
 void onMetricsChanged() {
   devicePixelRatio = ui.window.devicePixelRatio;
   paintBounds = ui.Offset.zero & (ui.window.physicalSize / devicePixelRatio);
-  floorImages.clear();
-  rooofImages.clear();
+  viewportSlivers.clear();
+}
+
+void onFlap(Direction flapDirection) {
+  switch (flapDirection) {
+    case Direction.left:
+      _rolloverLeft();
+      break;
+  }
 }
 
 void beginFrame(Duration timeStamp) async {
-  if (floorImages.isEmpty) {
+  if (viewportSlivers.isEmpty) {
     arena = Arena(paintBounds);
+    arena.onFlap = onFlap;
     for (var y = 0; y < 3; ++y) {
       for (var x = 0; x < 3; ++x) {
-        await prepareFloorImage(x, y, paintBounds);
-        await prepareRooofImage(x, y, paintBounds);
+        viewportSlivers.add(ViewportSliver(x, y)
+          ..floorImage = await prepareFloorImage(x, y, paintBounds)
+          ..rooofImage = await prepareRooofImage(x, y, paintBounds));
       }
     }
 
@@ -100,7 +111,7 @@ void beginFrame(Duration timeStamp) async {
 
   if (++frameNumber % 1000 == 0) {
     FlameAudio.play('opening_sample.ogg');
-    movingLeft = !movingLeft;
+    //movingLeft = !movingLeft;
   }
 
   // Here we determine the rotation according to the timeStamp given to us by
@@ -121,21 +132,33 @@ void beginFrame(Duration timeStamp) async {
   var blitters = arena.viewportBlitRegions;
   for (var blitter in blitters) {
     var srcIndex = blitter.iy * 3 + blitter.ix;
-    canvas.drawImageRect(floorImages[srcIndex], blitter.srcRect, blitter.dstRect, Paint());
-    canvas.drawImageRect(rooofImages[srcIndex], blitter.srcRect, blitter.dstRect, Paint());
+    canvas.drawImageRect(viewportSlivers[srcIndex].floorImage, blitter.srcRect, blitter.dstRect, Paint());
+    canvas.drawImageRect(viewportSlivers[srcIndex].rooofImage, blitter.srcRect, blitter.dstRect, Paint());
   }
 
   if (movingLeft) {
-    arena.moveInWorld(const Offset(-1, 0));
+    arena.moveInWorld(const Offset(-6, 0));
   } else {
     arena.moveInWorld(const Offset(1, 0));
   }
 
+  /* DEBUG DRAWERY */
   canvas.translate(paintBounds.width / 2.0, paintBounds.height / 2.0);
   TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "${fps.toStringAsFixed(0)} fps");
   TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
   tp.layout();
-  tp.paint(canvas, const Offset(-5.0, -5.0));
+  tp.paint(canvas, const Offset(-5.0, -80.0));
+
+  var debugStroke = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1
+    ..color = Colors.white30;
+
+  canvas.drawRect(const Rect.fromLTWH(-135, -60, 270, 150), debugStroke);
+  canvas.drawLine(const Offset(-135, -10), const Offset(135, -10), debugStroke);
+  canvas.drawLine(const Offset(-135, 40), const Offset(135, 40), debugStroke);
+  canvas.drawLine(const Offset(-45, -60), const Offset(-45, 90), debugStroke);
+  canvas.drawLine(const Offset(45, -60), const Offset(45, 90), debugStroke);
 
   // COMPOSITE
   final ui.Picture picture = recorder.endRecording();
@@ -166,19 +189,34 @@ void _rolloverLeft() {
    *    5  3  4
    *    8  6  7
    */
-  floorImages.swap(1, 2);
-  floorImages.swap(4, 5);
-  floorImages.swap(7, 8);
-  floorImages.swap(0, 1);
-  floorImages.swap(3, 4);
-  floorImages.swap(6, 7);
+  viewportSlivers.swap(1, 2);
+  viewportSlivers.swap(4, 5);
+  viewportSlivers.swap(7, 8);
+  viewportSlivers.swap(0, 1);
+  viewportSlivers.swap(3, 4);
+  viewportSlivers.swap(6, 7);
 
-  rooofImages.swap(1, 2);
-  rooofImages.swap(4, 5);
-  rooofImages.swap(7, 8);
-  rooofImages.swap(0, 1);
-  rooofImages.swap(3, 4);
-  rooofImages.swap(6, 7);
+  print('flap! rolloverLeft');
+  ++rolledOver;
+
+  /* don't await these... run in "background" */
+  var topLeftSliver = viewportSlivers[0 * 3 + 0];
+  prepareFloorImage(topLeftSliver.originalIx, topLeftSliver.originalIy, paintBounds)
+      .then((image) => topLeftSliver.floorImage = image);
+  prepareRooofImage(topLeftSliver.originalIx, topLeftSliver.originalIy, paintBounds)
+      .then((image) => topLeftSliver.rooofImage = image);
+
+  var centerLeftSliver = viewportSlivers[1 * 3 + 0];
+  prepareFloorImage(centerLeftSliver.originalIx, centerLeftSliver.originalIy, paintBounds)
+      .then((image) => centerLeftSliver.floorImage = image);
+  prepareRooofImage(centerLeftSliver.originalIx, centerLeftSliver.originalIy, paintBounds)
+      .then((image) => centerLeftSliver.rooofImage = image);
+
+  var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
+  prepareFloorImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
+      .then((image) => bottomLeftSliver.floorImage = image);
+  prepareRooofImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
+      .then((image) => bottomLeftSliver.rooofImage = image);
 }
 
 void _rolloverRight() {
@@ -194,22 +232,17 @@ void _rolloverRight() {
    *    4  5  3
    *    7  8  6
    */
-  floorImages.swap(0, 1);
-  floorImages.swap(3, 4);
-  floorImages.swap(6, 7);
-  floorImages.swap(1, 2);
-  floorImages.swap(4, 5);
-  floorImages.swap(7, 8);
+  viewportSlivers.swap(0, 1);
+  viewportSlivers.swap(3, 4);
+  viewportSlivers.swap(6, 7);
+  viewportSlivers.swap(1, 2);
+  viewportSlivers.swap(4, 5);
+  viewportSlivers.swap(7, 8);
 
-  rooofImages.swap(0, 1);
-  rooofImages.swap(3, 4);
-  rooofImages.swap(6, 7);
-  rooofImages.swap(1, 2);
-  rooofImages.swap(4, 5);
-  rooofImages.swap(7, 8);
+  print('flap! rolloverRight');
 }
 
-Future prepareFloorImage(int ix, int iy, ui.Rect bounds) async {
+Future<ui.Image> prepareFloorImage(int sliverX, int sliverY, ui.Rect bounds) async {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
   canvas.drawRRect(
@@ -219,11 +252,15 @@ Future prepareFloorImage(int ix, int iy, ui.Rect bounds) async {
         ..style = ui.PaintingStyle.stroke
         ..strokeWidth = 7);
 
-  floorImages.add(await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round()));
+  var span = TextSpan(style: const TextStyle(color: Colors.purple), text: "Floor sliver $rolledOver");
+  var tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
+  tp.layout();
+  tp.paint(canvas, const Offset(35, 75));
+
+  return await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round());
 }
 
-Future prepareRooofImage(int ix, int iy, ui.Rect bounds) async {
-  final i = rooofImages.length;
+Future<ui.Image> prepareRooofImage(int sliverX, int sliverY, ui.Rect bounds) async {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
   canvas.drawRRect(
@@ -233,12 +270,17 @@ Future prepareRooofImage(int ix, int iy, ui.Rect bounds) async {
         ..style = ui.PaintingStyle.stroke
         ..strokeWidth = 7);
 
-  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "(${ixFromIndex(i)},${iyFromIndex(i)})");
+  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "($sliverX,$sliverY})");
   TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
   tp.layout();
   tp.paint(canvas, const Offset(35, 35));
 
-  rooofImages.add(await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round()));
+  span = TextSpan(style: const TextStyle(color: Colors.purpleAccent), text: "Rooof sliver $rolledOver");
+  tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
+  tp.layout();
+  tp.paint(canvas, const Offset(35, 55));
+
+  return await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round());
 }
 
 int ixFromIndex(int index) => index % 3;
