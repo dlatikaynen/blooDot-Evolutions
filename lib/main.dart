@@ -5,6 +5,7 @@ import 'package:bloo_dot_evolutions/load_screen.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 
 import 'arena/arena.dart';
@@ -101,9 +102,11 @@ void beginFrame(Duration timeStamp) async {
     arena.onFlap = onFlap;
     for (var y = 0; y < 3; ++y) {
       for (var x = 0; x < 3; ++x) {
-        viewportSlivers.add(ViewportSliver(x, y)
-          ..floorImage = await prepareFloorImage(x, y, paintBounds)
-          ..rooofImage = await prepareRooofImage(x, y, paintBounds));
+        var sliver = ViewportSliver(x, y);
+        sliver.initializePositionInWorld(ui.Size(paintBounds.width, paintBounds.height));
+        sliver.floorImage = await prepareFloorImage(sliver, paintBounds);
+        sliver.rooofImage = await prepareRooofImage(sliver, paintBounds);
+        viewportSlivers.add(sliver);
       }
     }
   }
@@ -146,7 +149,7 @@ void beginFrame(Duration timeStamp) async {
   }
 
   if (movingLeftUp) {
-    arena.moveInWorld(const Offset(0, -3));
+    arena.moveInWorld(const Offset(0, -1));
   } else {
     arena.moveInWorld(const Offset(0, 3));
   }
@@ -205,27 +208,25 @@ void _rolloverLeft() {
   viewportSlivers.swap(3, 4);
   viewportSlivers.swap(6, 7);
 
-  print('flap! rolloverLeft');
+  if (!foundation.kReleaseMode) {
+    //ignore:avoid_print
+    print('flap! rolloverLeft');
+  }
+
   ++rolledOver;
 
   /* don't await these... run in "background" */
   var topLeftSliver = viewportSlivers[0 * 3 + 0];
-  prepareFloorImage(topLeftSliver.originalIx, topLeftSliver.originalIy, paintBounds)
-      .then((image) => topLeftSliver.floorImage = image);
-  prepareRooofImage(topLeftSliver.originalIx, topLeftSliver.originalIy, paintBounds)
-      .then((image) => topLeftSliver.rooofImage = image);
+  prepareFloorImage(topLeftSliver, paintBounds).then((image) => topLeftSliver.floorImage = image);
+  prepareRooofImage(topLeftSliver, paintBounds).then((image) => topLeftSliver.rooofImage = image);
 
   var centerLeftSliver = viewportSlivers[1 * 3 + 0];
-  prepareFloorImage(centerLeftSliver.originalIx, centerLeftSliver.originalIy, paintBounds)
-      .then((image) => centerLeftSliver.floorImage = image);
-  prepareRooofImage(centerLeftSliver.originalIx, centerLeftSliver.originalIy, paintBounds)
-      .then((image) => centerLeftSliver.rooofImage = image);
+  prepareFloorImage(centerLeftSliver, paintBounds).then((image) => centerLeftSliver.floorImage = image);
+  prepareRooofImage(centerLeftSliver, paintBounds).then((image) => centerLeftSliver.rooofImage = image);
 
   var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
-  prepareFloorImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
-      .then((image) => bottomLeftSliver.floorImage = image);
-  prepareRooofImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
-      .then((image) => bottomLeftSliver.rooofImage = image);
+  prepareFloorImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.floorImage = image);
+  prepareRooofImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.rooofImage = image);
 }
 
 void _rolloverRight() {
@@ -248,26 +249,24 @@ void _rolloverRight() {
   viewportSlivers.swap(4, 5);
   viewportSlivers.swap(7, 8);
 
-  print('flap! rolloverRight');
+  if (!foundation.kReleaseMode) {
+    //ignore:avoid_print
+    print('flap! rolloverRight');
+  }
+
   ++rolledOver;
   /* don't await these... run in "background" */
   var topRightSliver = viewportSlivers[0 * 3 + 2];
-  prepareFloorImage(topRightSliver.originalIx, topRightSliver.originalIy, paintBounds)
-      .then((image) => topRightSliver.floorImage = image);
-  prepareRooofImage(topRightSliver.originalIx, topRightSliver.originalIy, paintBounds)
-      .then((image) => topRightSliver.rooofImage = image);
+  prepareFloorImage(topRightSliver, paintBounds).then((image) => topRightSliver.floorImage = image);
+  prepareRooofImage(topRightSliver, paintBounds).then((image) => topRightSliver.rooofImage = image);
 
   var centerRightSliver = viewportSlivers[1 * 3 + 2];
-  prepareFloorImage(centerRightSliver.originalIx, centerRightSliver.originalIy, paintBounds)
-      .then((image) => centerRightSliver.floorImage = image);
-  prepareRooofImage(centerRightSliver.originalIx, centerRightSliver.originalIy, paintBounds)
-      .then((image) => centerRightSliver.rooofImage = image);
+  prepareFloorImage(centerRightSliver, paintBounds).then((image) => centerRightSliver.floorImage = image);
+  prepareRooofImage(centerRightSliver, paintBounds).then((image) => centerRightSliver.rooofImage = image);
 
   var bottomRightSliver = viewportSlivers[2 * 3 + 2];
-  prepareFloorImage(bottomRightSliver.originalIx, bottomRightSliver.originalIy, paintBounds)
-      .then((image) => bottomRightSliver.floorImage = image);
-  prepareRooofImage(bottomRightSliver.originalIx, bottomRightSliver.originalIy, paintBounds)
-      .then((image) => bottomRightSliver.rooofImage = image);
+  prepareFloorImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.floorImage = image);
+  prepareRooofImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.rooofImage = image);
 }
 
 void _rolloverUp() {
@@ -290,27 +289,25 @@ void _rolloverUp() {
   viewportSlivers.swap(1, 4);
   viewportSlivers.swap(2, 5);
 
-  print('flap! rolloverUp');
+  if (!foundation.kReleaseMode) {
+    //ignore:avoid_print
+    print('flap! rolloverUp');
+  }
+
   ++rolledOver;
 
   /* don't await these... run in "background" */
   var leftTopSliver = viewportSlivers[0 * 3 + 0];
-  prepareFloorImage(leftTopSliver.originalIx, leftTopSliver.originalIy, paintBounds)
-      .then((image) => leftTopSliver.floorImage = image);
-  prepareRooofImage(leftTopSliver.originalIx, leftTopSliver.originalIy, paintBounds)
-      .then((image) => leftTopSliver.rooofImage = image);
+  prepareFloorImage(leftTopSliver, paintBounds).then((image) => leftTopSliver.floorImage = image);
+  prepareRooofImage(leftTopSliver, paintBounds).then((image) => leftTopSliver.rooofImage = image);
 
   var centerTopSliver = viewportSlivers[0 * 3 + 1];
-  prepareFloorImage(centerTopSliver.originalIx, centerTopSliver.originalIy, paintBounds)
-      .then((image) => centerTopSliver.floorImage = image);
-  prepareRooofImage(centerTopSliver.originalIx, centerTopSliver.originalIy, paintBounds)
-      .then((image) => centerTopSliver.rooofImage = image);
+  prepareFloorImage(centerTopSliver, paintBounds).then((image) => centerTopSliver.floorImage = image);
+  prepareRooofImage(centerTopSliver, paintBounds).then((image) => centerTopSliver.rooofImage = image);
 
   var rightTopSliver = viewportSlivers[0 * 3 + 2];
-  prepareFloorImage(rightTopSliver.originalIx, rightTopSliver.originalIy, paintBounds)
-      .then((image) => rightTopSliver.floorImage = image);
-  prepareRooofImage(rightTopSliver.originalIx, rightTopSliver.originalIy, paintBounds)
-      .then((image) => rightTopSliver.rooofImage = image);
+  prepareFloorImage(rightTopSliver, paintBounds).then((image) => rightTopSliver.floorImage = image);
+  prepareRooofImage(rightTopSliver, paintBounds).then((image) => rightTopSliver.rooofImage = image);
 }
 
 void _rolloverDown() {
@@ -333,32 +330,42 @@ void _rolloverDown() {
   viewportSlivers.swap(4, 7);
   viewportSlivers.swap(5, 8);
 
-  print('flap! rolloverDown');
+  if (!foundation.kReleaseMode) {
+    //ignore:avoid_print
+    print('flap! rolloverDown');
+  }
+
   ++rolledOver;
 
   /* don't await these... run in "background" */
   var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
-  prepareFloorImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
-      .then((image) => bottomLeftSliver.floorImage = image);
-  prepareRooofImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
-      .then((image) => bottomLeftSliver.rooofImage = image);
+  prepareFloorImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.floorImage = image);
+  prepareRooofImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.rooofImage = image);
 
   var bottomCenterSliver = viewportSlivers[2 * 3 + 1];
-  prepareFloorImage(bottomCenterSliver.originalIx, bottomCenterSliver.originalIy, paintBounds)
-      .then((image) => bottomCenterSliver.floorImage = image);
-  prepareRooofImage(bottomCenterSliver.originalIx, bottomCenterSliver.originalIy, paintBounds)
-      .then((image) => bottomCenterSliver.rooofImage = image);
+  prepareFloorImage(bottomCenterSliver, paintBounds).then((image) => bottomCenterSliver.floorImage = image);
+  prepareRooofImage(bottomCenterSliver, paintBounds).then((image) => bottomCenterSliver.rooofImage = image);
 
   var bottomRightSliver = viewportSlivers[2 * 3 + 2];
-  prepareFloorImage(bottomRightSliver.originalIx, bottomRightSliver.originalIy, paintBounds)
-      .then((image) => bottomRightSliver.floorImage = image);
-  prepareRooofImage(bottomRightSliver.originalIx, bottomRightSliver.originalIy, paintBounds)
-      .then((image) => bottomRightSliver.rooofImage = image);
+  prepareFloorImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.floorImage = image);
+  prepareRooofImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.rooofImage = image);
 }
 
-Future<ui.Image> prepareFloorImage(int sliverX, int sliverY, ui.Rect bounds) async {
+Future<ui.Image> prepareFloorImage(ViewportSliver sliver, ui.Rect bounds) async {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
+  var runningX = sliver.topLeftInWorld.dx;
+  do {
+    canvas.drawLine(Offset(runningX, bounds.top), Offset(runningX, bounds.bottom), Paint()..color = Colors.white70);
+    runningX += LevelBase.tileSize;
+  } while (runningX <= bounds.width);
+
+  var runningY = sliver.topLeftInWorld.dy;
+  do {
+    canvas.drawLine(Offset(bounds.left, runningY), Offset(bounds.right, runningY), Paint()..color = Colors.white70);
+    runningY += LevelBase.tileSize;
+  } while (runningY <= bounds.height);
+
   canvas.drawRRect(
       RRect.fromRectAndRadius(bounds.inflate(-1), const Radius.circular(5)),
       Paint()
@@ -374,7 +381,7 @@ Future<ui.Image> prepareFloorImage(int sliverX, int sliverY, ui.Rect bounds) asy
   return await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round());
 }
 
-Future<ui.Image> prepareRooofImage(int sliverX, int sliverY, ui.Rect bounds) async {
+Future<ui.Image> prepareRooofImage(ViewportSliver sliver, ui.Rect bounds) async {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
   canvas.drawRRect(
@@ -384,7 +391,8 @@ Future<ui.Image> prepareRooofImage(int sliverX, int sliverY, ui.Rect bounds) asy
         ..style = ui.PaintingStyle.stroke
         ..strokeWidth = 1.5);
 
-  TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "($sliverX,$sliverY})");
+  TextSpan span =
+      TextSpan(style: const TextStyle(color: Colors.white), text: "(${sliver.originalIx},${sliver.originalIy})");
   TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
   tp.layout();
   tp.paint(canvas, const Offset(35, 35));
