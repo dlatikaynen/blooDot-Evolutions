@@ -198,7 +198,7 @@ class Arena {
   void _moveUpSliver(ViewportBlitRegion upperHalf, ViewportBlitRegion lowerHalf, double dy) {
     var topBefore = upperHalf.srcRect.top;
     upperHalf.srcRect =
-        ui.Rect.fromLTWH(0, upperHalf.srcRect.top - dy, upperHalf.srcRect.width, viewportBounds.height + dy);
+        ui.Rect.fromLTWH(0, upperHalf.srcRect.top - dy, viewportBounds.width, upperHalf.srcRect.height + dy);
 
     if (upperHalf.srcRect.top == 0) {
       _partitioningSituation = ViewportPartitioningSituation.singleIntersection;

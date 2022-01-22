@@ -360,11 +360,11 @@ Future<ui.Image> prepareFloorImage(int sliverX, int sliverY, ui.Rect bounds) asy
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
   canvas.drawRRect(
-      RRect.fromRectAndRadius(bounds.inflate(-30), const Radius.circular(11)),
+      RRect.fromRectAndRadius(bounds.inflate(-1), const Radius.circular(5)),
       Paint()
         ..color = Colors.indigoAccent
         ..style = ui.PaintingStyle.stroke
-        ..strokeWidth = 7);
+        ..strokeWidth = 1.5);
 
   var span = TextSpan(style: const TextStyle(color: Colors.purple), text: "Floor sliver $rolledOver");
   var tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
@@ -378,11 +378,11 @@ Future<ui.Image> prepareRooofImage(int sliverX, int sliverY, ui.Rect bounds) asy
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, bounds);
   canvas.drawRRect(
-      RRect.fromRectAndRadius(bounds.inflate(-20), const Radius.circular(11)),
+      RRect.fromRectAndRadius(bounds.inflate(-4), const Radius.circular(5)),
       Paint()
         ..color = Colors.teal
         ..style = ui.PaintingStyle.stroke
-        ..strokeWidth = 7);
+        ..strokeWidth = 1.5);
 
   TextSpan span = TextSpan(style: const TextStyle(color: Colors.white), text: "($sliverX,$sliverY})");
   TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
