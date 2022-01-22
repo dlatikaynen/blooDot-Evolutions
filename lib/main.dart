@@ -66,7 +66,7 @@ final viewportSlivers = List<ViewportSliver>.empty(growable: true);
 late int frameNumber = 0;
 late double roofX = 0.0;
 late Arena arena;
-late bool movingLeft = true;
+late bool movingLeftUp = true;
 late int rolledOver = 0;
 
 void onMetricsChanged() {
@@ -145,7 +145,7 @@ void beginFrame(Duration timeStamp) async {
     canvas.drawImageRect(viewportSlivers[srcIndex].rooofImage, blitter.srcRect, blitter.dstRect, Paint());
   }
 
-  if (movingLeft) {
+  if (movingLeftUp) {
     arena.moveInWorld(const Offset(0, -3));
   } else {
     arena.moveInWorld(const Offset(0, 3));
@@ -335,6 +335,7 @@ void _rolloverDown() {
 
   print('flap! rolloverDown');
   ++rolledOver;
+
   /* don't await these... run in "background" */
   var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
   prepareFloorImage(bottomLeftSliver.originalIx, bottomLeftSliver.originalIy, paintBounds)
@@ -395,9 +396,6 @@ Future<ui.Image> prepareRooofImage(int sliverX, int sliverY, ui.Rect bounds) asy
 
   return await recorder.endRecording().toImage(bounds.width.round(), bounds.height.round());
 }
-
-int ixFromIndex(int index) => index % 3;
-int iyFromIndex(int index) => (index / 3).floor();
 
 void main() async {
   ui.window.platformDispatcher.setIsolateDebugName("blooDot Evolutions");

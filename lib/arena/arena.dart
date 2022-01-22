@@ -230,7 +230,58 @@ class Arena {
   }
 
   void _moveDown(double dy) {
+    switch (_partitioningSituation) {
+      case ViewportPartitioningSituation.singleIntersection:
+        _doubleIntersectionVert[0].ix = 1;
+        _doubleIntersectionVert[0].iy = 1;
+        _doubleIntersectionVert[0].srcRect = ui.Rect.fromLTWH(0, dy, viewportBounds.width, viewportBounds.height - dy);
+        _doubleIntersectionVert[0].dstRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, viewportBounds.height - dy);
+        _doubleIntersectionVert[1].ix = 1;
+        _doubleIntersectionVert[1].iy = 2;
+        _doubleIntersectionVert[1].srcRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, dy);
+        _doubleIntersectionVert[1].dstRect = ui.Rect.fromLTWH(0, viewportBounds.height - dy, viewportBounds.width, dy);
+        _partitioningSituation = ViewportPartitioningSituation.twinIntersectionVert;
+        break;
+
+      case ViewportPartitioningSituation.twinIntersectionVert:
+        _moveDownSliver(_doubleIntersectionVert[0], _doubleIntersectionVert[1], dy);
+        break;
+
+      case ViewportPartitioningSituation.twinIntersectionHorz:
+        break;
+    }
+
     centerInWorld = centerInWorld.translate(0, dy);
+  }
+
+  void _moveDownSliver(ViewportBlitRegion upperHalf, ViewportBlitRegion lowerHalf, double dy) {
+    var bottomBefore = lowerHalf.srcRect.height;
+    lowerHalf.srcRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, lowerHalf.srcRect.height + dy);
+    if (lowerHalf.srcRect.height == viewportBounds.height) {
+      _partitioningSituation = ViewportPartitioningSituation.singleIntersection;
+      return;
+    } else if (bottomBefore < (2 * flapTresholdY) && lowerHalf.srcRect.height >= (2 * flapTresholdY)) {
+      onFlap?.call(Direction.down);
+      upperHalf.iy = 0;
+      lowerHalf.iy = 1;
+    }
+
+    if (lowerHalf.srcRect.height > viewportBounds.height) {
+      var overShoot = lowerHalf.srcRect.height - viewportBounds.height;
+      upperHalf.iy = 1;
+      lowerHalf.iy = 2;
+      upperHalf.srcRect = ui.Rect.fromLTWH(0, overShoot, viewportBounds.width, viewportBounds.height - overShoot);
+      upperHalf.dstRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, viewportBounds.height - overShoot);
+      lowerHalf.dstRect = ui.Rect.fromLTWH(0, viewportBounds.height - overShoot, viewportBounds.width, overShoot);
+      lowerHalf.srcRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, overShoot);
+      return;
+    }
+
+    lowerHalf.dstRect =
+        ui.Rect.fromLTWH(0, lowerHalf.dstRect.top - dy, viewportBounds.width, lowerHalf.dstRect.height + dy);
+    upperHalf.srcRect =
+        ui.Rect.fromLTWH(0, upperHalf.srcRect.top + dy, viewportBounds.width, upperHalf.srcRect.height - dy);
+    upperHalf.dstRect = ui.Rect.fromLTWH(0, 0, viewportBounds.width, upperHalf.dstRect.height - dy);
   }
 
   void _switchActivePartitioningSituation() {
