@@ -23,7 +23,7 @@ class BlooDotEvolutionsGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    _level ??= Level001(this);
+    _level ??= Level001();
     if (!_level!.isLoaded) {
       _follower = Follower();
     }
@@ -67,6 +67,7 @@ final viewportSlivers = List<ViewportSliver>.empty(growable: true);
 late int frameNumber = 0;
 late double roofX = 0.0;
 late Arena arena;
+late LevelBase level;
 late bool movingLeftUp = true;
 late int rolledOver = 0;
 
@@ -78,6 +79,10 @@ void onMetricsChanged() {
 
 void onFlap(Direction flapDirection) {
   switch (flapDirection) {
+    case Direction.none:
+      assert(flapDirection != Direction.none);
+      break;
+
     case Direction.left:
       _rolloverLeft();
       break;
@@ -99,6 +104,7 @@ void onFlap(Direction flapDirection) {
 void beginFrame(Duration timeStamp) async {
   if (viewportSlivers.isEmpty) {
     arena = Arena(paintBounds);
+    level = Level001();
     arena.onFlap = onFlap;
     for (var y = 0; y < 3; ++y) {
       for (var x = 0; x < 3; ++x) {
@@ -366,6 +372,11 @@ Future<ui.Image> prepareFloorImage(ViewportSliver sliver, ui.Rect bounds) async 
     runningY += LevelBase.tileSize;
   } while (runningY <= bounds.height);
 
+  if (!level.isLoaded) {
+    await level.onLoad();
+  }
+
+  canvas.drawImage(await level.sprite!.toImage(), sliver.topLeftInWorld, Paint());
   canvas.drawRRect(
       RRect.fromRectAndRadius(bounds.inflate(-1), const Radius.circular(5)),
       Paint()

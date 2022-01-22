@@ -1,10 +1,9 @@
 import 'package:bloo_dot_evolutions/algo/monomino_lookup.dart';
 import 'package:bloo_dot_evolutions/arena/level_base.dart';
 import 'package:bloo_dot_evolutions/level/tilesets/gray_wall_tile_set.dart';
-import 'package:flame/game.dart';
 
 class Level002 extends LevelBase {
-  Level002(FlameGame gameRef) : super(gameRef);
+  Level002() : super();
 
   @override
   String get levelName => "Tile Composition Test Level";

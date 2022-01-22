@@ -1,10 +1,9 @@
 import 'package:bloo_dot_evolutions/algo/monomino_lookup.dart';
 import 'package:bloo_dot_evolutions/arena/level_base.dart';
 import 'package:bloo_dot_evolutions/level/tilesets/gray_wall_tile_set.dart';
-import 'package:flame/game.dart';
 
 class Level001 extends LevelBase {
-  Level001(FlameGame gameRef) : super(gameRef);
+  Level001() : super();
 
   static const _walls = [
     "11111111111111111111",

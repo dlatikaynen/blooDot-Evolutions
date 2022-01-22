@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:bloo_dot_evolutions/algo/blob_tile_painter_base.dart';
 import 'package:bloo_dot_evolutions/algo/blob_tileset_painter.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import 'arena_object.dart';
@@ -11,7 +10,6 @@ import 'arena_object.dart';
 abstract class LevelBase extends SpriteComponent {
   static const tileSize = 33.0;
 
-  final FlameGame gameRef;
   final linePaint = Paint()
     ..style = PaintingStyle.stroke
     ..color = Colors.white12;
@@ -30,7 +28,7 @@ abstract class LevelBase extends SpriteComponent {
   int get midTileX => levelNumTilesX ~/ 2;
   int get midTileY => levelNumTilesY ~/ 2;
 
-  LevelBase(this.gameRef);
+  LevelBase();
 
   Future drawSpecific();
 
@@ -47,17 +45,17 @@ abstract class LevelBase extends SpriteComponent {
   }
 
   Future paintBackdrop() async {
-    var universeImage = await gameRef.images.load("universe_seamless.png");
-    if (universeImage.width < sizePixelsX) {
-      throw ArgumentError("Level too wide for background");
-    }
-
-    if (universeImage.height < sizePixelsY) {
-      throw ArgumentError("Level too high for background");
-    }
-
-    canvas.drawImageRect(universeImage, Rect.fromLTWH(0, 0, sizePixelsX, sizePixelsY),
-        Rect.fromLTWH(0, 0, sizePixelsX, sizePixelsY), Paint());
+    // var universeImage = await gameRef.images.load("universe_seamless.png");
+    // if (universeImage.width < sizePixelsX) {
+    //   throw ArgumentError("Level too wide for background");
+    // }
+    //
+    // if (universeImage.height < sizePixelsY) {
+    //   throw ArgumentError("Level too high for background");
+    // }
+    //
+    // canvas.drawImageRect(universeImage, Rect.fromLTWH(0, 0, sizePixelsX, sizePixelsY),
+    //     Rect.fromLTWH(0, 0, sizePixelsX, sizePixelsY), Paint());
   }
 
   Future paintTileGrid() async {
