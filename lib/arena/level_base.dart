@@ -36,7 +36,8 @@ abstract class LevelBase extends SpriteComponent {
   Future<void>? onLoad() async {
     sprite = await _createLevel();
     size = sprite!.originalSize;
-    return super.onLoad();
+    await super.onLoad();
+    isLoaded = true;
   }
 
   Future selectTileSet(BlobTilePainter tileSet) async {

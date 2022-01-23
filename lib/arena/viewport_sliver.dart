@@ -15,7 +15,7 @@ class ViewportSliver {
 
   ViewportSliver(this.originalIx, this.originalIy);
 
-  void initializePositionInWorld(ui.Size viewportSize,
+  ViewportSliver initializePositionInWorld(ui.Size viewportSize,
       {ViewportSliver? neighboringSliver, Direction neighborInDirection = Direction.none}) {
     if (neighboringSliver == null) {
       var originDuMondeX = viewportSize.width / 2.0;
@@ -25,7 +25,14 @@ class ViewportSliver {
       topLeftInWorld = ui.Offset(
           originDuMondeX + topLeftTileX * LevelBase.tileSize, originDuMondeY + topLeftTileY * LevelBase.tileSize);
     } else {
-      ;
+      var originDuMondeX = viewportSize.width / 2.0;
+      var originDuMondeY = viewportSize.height / 2.0;
+      topLeftTileX = -(originDuMondeX / LevelBase.tileSize).ceil();
+      topLeftTileY = -(originDuMondeY / LevelBase.tileSize).ceil();
+      topLeftInWorld = ui.Offset(
+          originDuMondeX + topLeftTileX * LevelBase.tileSize, originDuMondeY + topLeftTileY * LevelBase.tileSize);
     }
+
+    return this;
   }
 }

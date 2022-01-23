@@ -59,6 +59,7 @@ void main2() async {
 }
 
 late ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
+late ui.Size viewportSize = ui.Size(paintBounds.width, paintBounds.height);
 late double devicePixelRatio = ui.window.devicePixelRatio;
 late double t = 0;
 late double deltaT = 0;
@@ -74,6 +75,7 @@ late int rolledOver = 0;
 void onMetricsChanged() {
   devicePixelRatio = ui.window.devicePixelRatio;
   paintBounds = ui.Offset.zero & (ui.window.physicalSize / devicePixelRatio);
+  viewportSize = ui.Size(paintBounds.width, paintBounds.height);
   viewportSlivers.clear();
 }
 
@@ -222,17 +224,9 @@ void _rolloverLeft() {
   ++rolledOver;
 
   /* don't await these... run in "background" */
-  var topLeftSliver = viewportSlivers[0 * 3 + 0];
-  prepareFloorImage(topLeftSliver, paintBounds).then((image) => topLeftSliver.floorImage = image);
-  prepareRooofImage(topLeftSliver, paintBounds).then((image) => topLeftSliver.rooofImage = image);
-
-  var centerLeftSliver = viewportSlivers[1 * 3 + 0];
-  prepareFloorImage(centerLeftSliver, paintBounds).then((image) => centerLeftSliver.floorImage = image);
-  prepareRooofImage(centerLeftSliver, paintBounds).then((image) => centerLeftSliver.rooofImage = image);
-
-  var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
-  prepareFloorImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.floorImage = image);
-  prepareRooofImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.rooofImage = image);
+  _prepareSliverAsync(0 * 3 + 0, 0 * 3 + 1, Direction.right);
+  _prepareSliverAsync(1 * 3 + 0, 1 * 3 + 1, Direction.right);
+  _prepareSliverAsync(2 * 3 + 0, 2 * 3 + 1, Direction.right);
 }
 
 void _rolloverRight() {
@@ -261,18 +255,11 @@ void _rolloverRight() {
   }
 
   ++rolledOver;
+
   /* don't await these... run in "background" */
-  var topRightSliver = viewportSlivers[0 * 3 + 2];
-  prepareFloorImage(topRightSliver, paintBounds).then((image) => topRightSliver.floorImage = image);
-  prepareRooofImage(topRightSliver, paintBounds).then((image) => topRightSliver.rooofImage = image);
-
-  var centerRightSliver = viewportSlivers[1 * 3 + 2];
-  prepareFloorImage(centerRightSliver, paintBounds).then((image) => centerRightSliver.floorImage = image);
-  prepareRooofImage(centerRightSliver, paintBounds).then((image) => centerRightSliver.rooofImage = image);
-
-  var bottomRightSliver = viewportSlivers[2 * 3 + 2];
-  prepareFloorImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.floorImage = image);
-  prepareRooofImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.rooofImage = image);
+  _prepareSliverAsync(0 * 3 + 2, 0 * 3 + 1, Direction.left);
+  _prepareSliverAsync(1 * 3 + 2, 1 * 3 + 1, Direction.left);
+  _prepareSliverAsync(2 * 3 + 2, 2 * 3 + 1, Direction.left);
 }
 
 void _rolloverUp() {
@@ -303,17 +290,9 @@ void _rolloverUp() {
   ++rolledOver;
 
   /* don't await these... run in "background" */
-  var leftTopSliver = viewportSlivers[0 * 3 + 0];
-  prepareFloorImage(leftTopSliver, paintBounds).then((image) => leftTopSliver.floorImage = image);
-  prepareRooofImage(leftTopSliver, paintBounds).then((image) => leftTopSliver.rooofImage = image);
-
-  var centerTopSliver = viewportSlivers[0 * 3 + 1];
-  prepareFloorImage(centerTopSliver, paintBounds).then((image) => centerTopSliver.floorImage = image);
-  prepareRooofImage(centerTopSliver, paintBounds).then((image) => centerTopSliver.rooofImage = image);
-
-  var rightTopSliver = viewportSlivers[0 * 3 + 2];
-  prepareFloorImage(rightTopSliver, paintBounds).then((image) => rightTopSliver.floorImage = image);
-  prepareRooofImage(rightTopSliver, paintBounds).then((image) => rightTopSliver.rooofImage = image);
+  _prepareSliverAsync(0 * 3 + 0, 1 * 3 + 0, Direction.down);
+  _prepareSliverAsync(0 * 3 + 1, 1 * 3 + 1, Direction.down);
+  _prepareSliverAsync(0 * 3 + 2, 1 * 3 + 2, Direction.down);
 }
 
 void _rolloverDown() {
@@ -344,17 +323,17 @@ void _rolloverDown() {
   ++rolledOver;
 
   /* don't await these... run in "background" */
-  var bottomLeftSliver = viewportSlivers[2 * 3 + 0];
-  prepareFloorImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.floorImage = image);
-  prepareRooofImage(bottomLeftSliver, paintBounds).then((image) => bottomLeftSliver.rooofImage = image);
+  _prepareSliverAsync(2 * 3 + 0, 1 * 3 + 0, Direction.up);
+  _prepareSliverAsync(2 * 3 + 1, 1 * 3 + 1, Direction.up);
+  _prepareSliverAsync(2 * 3 + 2, 1 * 3 + 2, Direction.up);
+}
 
-  var bottomCenterSliver = viewportSlivers[2 * 3 + 1];
-  prepareFloorImage(bottomCenterSliver, paintBounds).then((image) => bottomCenterSliver.floorImage = image);
-  prepareRooofImage(bottomCenterSliver, paintBounds).then((image) => bottomCenterSliver.rooofImage = image);
+void _prepareSliverAsync(int sliverIndex, int neighborIndex, Direction neighborInDirection) {
+  var viewportSliver = viewportSlivers[sliverIndex].initializePositionInWorld(viewportSize,
+      neighboringSliver: viewportSlivers[neighborIndex], neighborInDirection: neighborInDirection);
 
-  var bottomRightSliver = viewportSlivers[2 * 3 + 2];
-  prepareFloorImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.floorImage = image);
-  prepareRooofImage(bottomRightSliver, paintBounds).then((image) => bottomRightSliver.rooofImage = image);
+  prepareFloorImage(viewportSliver, paintBounds).then((image) => viewportSliver.floorImage = image);
+  prepareRooofImage(viewportSliver, paintBounds).then((image) => viewportSliver.rooofImage = image);
 }
 
 Future<ui.Image> prepareFloorImage(ViewportSliver sliver, ui.Rect bounds) async {
