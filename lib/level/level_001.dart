@@ -34,15 +34,18 @@ class Level001 extends LevelBase {
       }
     }
 
-    floodFillTile(canvas, 4, 4, MonominoLookup.primeIndexShy);
-    placeStaticTile(canvas, 3, 3, 0, 0);
-    placeStaticTile(canvas, 4, 3, 1, 0);
-    placeStaticTile(canvas, 5, 3, 2, 0);
-    placeStaticTile(canvas, 3, 4, 0, 1);
-    placeStaticTile(canvas, 4, 4, 1, 1);
-    placeStaticTile(canvas, 5, 4, 2, 1);
-    placeStaticTile(canvas, 3, 5, 0, 2);
-    placeStaticTile(canvas, 4, 5, 1, 2);
-    placeStaticTile(canvas, 5, 5, 2, 2);
+    //floodFillBlob(canvas, 4, 4, MonominoLookup.primeIndexShy);
+
+    floodFillStaticTile(canvas, 3, 3, GreyWallTileSet.marbleFloor);
+
+    // placeStaticTile(canvas, 3, 3, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 4, 3, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 5, 3, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 3, 4, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 4, 4, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 5, 4, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 3, 5, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 4, 5, GreyWallTileSet.marbleFloor);
+    // placeStaticTile(canvas, 5, 5, GreyWallTileSet.marbleFloor);
   }
 }

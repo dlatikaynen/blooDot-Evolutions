@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:bloo_dot_evolutions/algo/blob_tile_painter_base.dart';
+import 'package:bloo_dot_evolutions/algo/coords2.dart';
 import 'package:bloo_dot_evolutions/algo/monomino_lookup.dart';
 import 'package:bloo_dot_evolutions/arena/level_base.dart';
 import 'package:flutter/material.dart';
 
 class GreyWallTileSet extends BlobTilePainter {
+  static const marbleFloor = 1;
+
   /* https://www.qb64.org/wiki/COLOR */
   final Paint basePaint = Paint()
     ..color = const Color.fromARGB(0xff, 0x54, 0x54, 0x54)
@@ -126,6 +129,28 @@ class GreyWallTileSet extends BlobTilePainter {
 
       default:
         throw UnsupportedError("${(GreyWallTileSet)} cannot draw $primeIndex");
+    }
+  }
+
+  @override
+  IntCoords2 tileNumberToBaseSheetPosition(int tileNumber) {
+    switch (tileNumber) {
+      case marbleFloor:
+        return const IntCoords2(0, 0);
+
+      default:
+        throw RangeError(tileNumber);
+    }
+  }
+
+  @override
+  IntSize2 tilePartitionSizeOnSheet(int tileNumber) {
+    switch (tileNumber) {
+      case marbleFloor:
+        return const IntSize2(3, 3);
+
+      default:
+        return super.tilePartitionSizeOnSheet(tileNumber);
     }
   }
 }

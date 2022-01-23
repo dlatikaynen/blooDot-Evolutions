@@ -65,6 +65,9 @@ class Arena {
 
       case ViewportPartitioningSituation.twinIntersectionVert:
         break;
+
+      case ViewportPartitioningSituation.quadIntersection:
+        break;
     }
 
     centerInWorld = centerInWorld.translate(-dx, 0);
@@ -123,6 +126,9 @@ class Arena {
         break;
 
       case ViewportPartitioningSituation.twinIntersectionVert:
+        break;
+
+      case ViewportPartitioningSituation.quadIntersection:
         break;
     }
 
@@ -190,6 +196,9 @@ class Arena {
 
       case ViewportPartitioningSituation.twinIntersectionHorz:
         break;
+
+      case ViewportPartitioningSituation.quadIntersection:
+        break;
     }
 
     centerInWorld = centerInWorld.translate(0, -dy);
@@ -248,6 +257,9 @@ class Arena {
         break;
 
       case ViewportPartitioningSituation.twinIntersectionHorz:
+        break;
+
+      case ViewportPartitioningSituation.quadIntersection:
         break;
     }
 

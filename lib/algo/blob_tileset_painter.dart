@@ -22,8 +22,7 @@ class TileSetPainter {
     _paintTo.restore();
   }
 
-  void paintStaticTile(int indexOnSpriteSheetX, int indexOnSpriteSheetY,
-      {int numRotations = 0, int strideX = 1, int strideY = 1}) {
+  void paintStaticTile(int indexOnSpriteSheetX, int indexOnSpriteSheetY, {int numRotations = 0}) {
     _paintTo.save();
     _paintTo.clipRect(_clipRect);
     _rotate(numRotations);

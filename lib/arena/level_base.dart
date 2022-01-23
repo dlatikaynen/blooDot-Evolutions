@@ -83,27 +83,42 @@ abstract class LevelBase extends SpriteComponent {
     paintTo.restore();
   }
 
-  void placeStaticTile(Canvas paintTo, int gridX, int gridY, int tileIndexX, int tileIndexY) {
+  void placeStaticTile(Canvas paintTo, int gridX, int gridY, int tileNumber) {
     if (_selectedTileSet == null) {
       return;
     }
 
+    addStaticTileObject(gridX, gridY, tileNumber);
     paintTo.save();
     paintTo.translate(gridX * tileSize, gridY * tileSize);
-    TileSetPainter(_selectedTileSet!, paintTo).paintStaticTile(tileIndexX, tileIndexY);
+    var positionOnSheet = _selectedTileSet!.tileNumberToSheetCoordinates(tileNumber, strideX: gridX, strideY: gridY);
+    TileSetPainter(_selectedTileSet!, paintTo).paintStaticTile(positionOnSheet.x, positionOnSheet.y, numRotations: 0);
+
     paintTo.restore();
   }
 
-  void floodFillTile(Canvas paintTo, int gridX, int gridY, int tileIndex) {
+  void floodFillBlob(Canvas paintTo, int gridX, int gridY, int tileIndex) {
     if (arena[gridX][gridY] != null) {
       return;
     }
 
     placeBlobTile(paintTo, gridX, gridY, tileIndex);
-    floodFillTile(paintTo, gridX, gridY + 1, tileIndex);
-    floodFillTile(paintTo, gridX, gridY - 1, tileIndex);
-    floodFillTile(paintTo, gridX - 1, gridY, tileIndex);
-    floodFillTile(paintTo, gridX + 1, gridY, tileIndex);
+    floodFillBlob(paintTo, gridX, gridY + 1, tileIndex);
+    floodFillBlob(paintTo, gridX, gridY - 1, tileIndex);
+    floodFillBlob(paintTo, gridX - 1, gridY, tileIndex);
+    floodFillBlob(paintTo, gridX + 1, gridY, tileIndex);
+  }
+
+  void floodFillStaticTile(Canvas paintTo, int gridX, int gridY, int tileNumber) {
+    if (arena[gridX][gridY] != null) {
+      return;
+    }
+
+    placeStaticTile(paintTo, gridX, gridY, tileNumber);
+    floodFillStaticTile(paintTo, gridX, gridY + 1, tileNumber);
+    floodFillStaticTile(paintTo, gridX, gridY - 1, tileNumber);
+    floodFillStaticTile(paintTo, gridX - 1, gridY, tileNumber);
+    floodFillStaticTile(paintTo, gridX + 1, gridY, tileNumber);
   }
 
   void addStaticTileObject(int gridX, int gridY, int tileIndex) {
