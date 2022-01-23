@@ -34,6 +34,7 @@ class Level001 extends LevelBase {
       }
     }
 
+    floodFillTile(canvas, 4, 4, MonominoLookup.primeIndexShy);
     placeStaticTile(canvas, 3, 3, 0, 0);
     placeStaticTile(canvas, 4, 3, 1, 0);
     placeStaticTile(canvas, 5, 3, 2, 0);

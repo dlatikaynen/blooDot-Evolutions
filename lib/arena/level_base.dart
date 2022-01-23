@@ -94,6 +94,18 @@ abstract class LevelBase extends SpriteComponent {
     paintTo.restore();
   }
 
+  void floodFillTile(Canvas paintTo, int gridX, int gridY, int tileIndex) {
+    if (arena[gridX][gridY] != null) {
+      return;
+    }
+
+    placeBlobTile(paintTo, gridX, gridY, tileIndex);
+    floodFillTile(paintTo, gridX, gridY + 1, tileIndex);
+    floodFillTile(paintTo, gridX, gridY - 1, tileIndex);
+    floodFillTile(paintTo, gridX - 1, gridY, tileIndex);
+    floodFillTile(paintTo, gridX + 1, gridY, tileIndex);
+  }
+
   void addStaticTileObject(int gridX, int gridY, int tileIndex) {
     var object = ArenaObject()
       ..anchorTileX = gridX
@@ -108,7 +120,7 @@ abstract class LevelBase extends SpriteComponent {
   }
 
   Future<Sprite> _createLevel() async {
-    arena = List.filled(levelNumTilesX, List.filled(levelNumTilesY, null));
+    arena = List.generate(levelNumTilesX, (i) => List.generate(levelNumTilesY, (i) => null), growable: false);
     var sink = PictureRecorder();
     canvas = Canvas(sink);
     await paintBackdrop();
