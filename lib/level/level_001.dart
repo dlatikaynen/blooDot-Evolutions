@@ -37,6 +37,7 @@ class Level001 extends LevelBase {
     //floodFillBlob(canvas, 4, 4, MonominoLookup.primeIndexShy);
 
     floodFillStaticTile(canvas, 3, 3, GreyWallTileSet.marbleFloor);
+    floodFillStaticTile(canvas, 10, 3, GreyWallTileSet.marbleFloor);
 
     // placeStaticTile(canvas, 3, 3, GreyWallTileSet.marbleFloor);
     // placeStaticTile(canvas, 4, 3, GreyWallTileSet.marbleFloor);

@@ -149,17 +149,19 @@ void beginFrame(Duration timeStamp) async {
   canvas.restore();
   */
 
-  var blitters = arena.viewportBlitRegions;
-  for (var blitter in blitters) {
-    var srcIndex = blitter.iy * 3 + blitter.ix;
-    canvas.drawImageRect(viewportSlivers[srcIndex].floorImage, blitter.srcRect, blitter.dstRect, Paint());
-    canvas.drawImageRect(viewportSlivers[srcIndex].rooofImage, blitter.srcRect, blitter.dstRect, Paint());
-  }
+  if (rolledOver < 3) {
+    var blitters = arena.viewportBlitRegions;
+    for (var blitter in blitters) {
+      var srcIndex = blitter.iy * 3 + blitter.ix;
+      canvas.drawImageRect(viewportSlivers[srcIndex].floorImage, blitter.srcRect, blitter.dstRect, Paint());
+      canvas.drawImageRect(viewportSlivers[srcIndex].rooofImage, blitter.srcRect, blitter.dstRect, Paint());
+    }
 
-  if (movingLeftUp) {
-    arena.moveInWorld(const Offset(0, -1));
-  } else {
-    arena.moveInWorld(const Offset(0, 3));
+    if (movingLeftUp) {
+      arena.moveInWorld(const Offset(0, -1));
+    } else {
+      arena.moveInWorld(const Offset(0, 3));
+    }
   }
 
   /* DEBUG DRAWERY */
