@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">blooDot Evolution</string>
+    <string name="viewSizeLabel">Initial view size:</string>
+    <string name="surfaceSizeTiny">[tiny]</string>
+    <string name="surfaceSizeSmall">[small]</string>
+    <string name="surfaceSizeMedium">[medium]</string>
+    <string name="surfaceSizeFull">[full]</string>
+    <string name="flatShaded">flat shaded</string>
+    <string name="title_activity_hardware_scaler">Main Game Loop</string>
+</resources>
