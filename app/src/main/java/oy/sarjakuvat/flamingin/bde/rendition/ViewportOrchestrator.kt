@@ -3,8 +3,12 @@ package oy.sarjakuvat.flamingin.bde.rendition
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
+import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
+import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
+import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
 
 class ViewportOrchestrator {
     private val floorSlivers: Array<OffscreenFrame> = Array(9) { OffscreenFrame() }
@@ -43,6 +47,25 @@ class ViewportOrchestrator {
         paint.style = Paint.Style.STROKE
         paint.color=Color.MAGENTA
         sink.drawRoundRect(RectF(100f,100f,width - 100f,height - 100f),30f,30f, paint)
+
+        /* debug-draw a clumsy pack in it */
+        val gwT = GrayWallTileset()
+        gwT.load()
+        val tsP = TilesetPainter(gwT, sink)
+
+        for(y in 1..120) for(x in 1..30) {
+            sink.save()
+            sink.translate(x.toFloat() * tileSize, y.toFloat() * tileSize)
+            tsP.paintBlobTile(MonominoLookup.primeIndexShy)
+            sink.restore()
+        }
+
+        sink.save()
+        sink.translate(15f * tileSize, 15f * tileSize)
+        val tileSource = gwT.tileNumberToSheetCoordinates(GrayWallTileset.marbleFloor, 15,15)
+        tsP.paintStaticTile(tileSource.x, tileSource.y)
+        sink.restore()
+
 
         val textureName = populator.asNewTexture()
         spriteSheet.populate(textureName)
