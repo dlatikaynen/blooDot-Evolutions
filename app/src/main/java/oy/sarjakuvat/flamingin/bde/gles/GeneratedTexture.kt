@@ -59,7 +59,7 @@ object GeneratedTexture {
 
     private fun generateCoarseData(): ByteBuffer {
         val buf = ByteArray(TEX_SIZE * TEX_SIZE * BYTES_PER_PIXEL)
-        val scale = TEX_SIZE / 4 // convert 64x64 --> 4x4
+        val scale = TEX_SIZE / 4 // pixelate, 64 by 64 to become 4 by 4
         var i = 0
         while (i < buf.size) {
             val texRow = i / BYTES_PER_PIXEL / TEX_SIZE
