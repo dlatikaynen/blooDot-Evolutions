@@ -26,17 +26,17 @@ object MonominoIndex {
             return MonominoLookup(tileIndex)
         }
 
-        var rotationIndex = this [4, 16, 64].indexOf(tileIndex);
+        var rotationIndex = this [4, 16, 64].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(1, rotationIndex + 1)
         }
 
-        rotationIndex = this [20, 80, 65].indexOf(tileIndex);
+        rotationIndex = this [20, 80, 65].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(5, rotationIndex + 1)
         }
 
-        rotationIndex = this [28, 112, 193].indexOf(tileIndex);
+        rotationIndex = this [28, 112, 193].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(7, rotationIndex + 1)
         }
@@ -45,32 +45,32 @@ object MonominoIndex {
             return MonominoLookup(17, 1)
         }
 
-        rotationIndex = this [84, 81, noice].indexOf(tileIndex);
+        rotationIndex = this [84, 81, noice].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(21, rotationIndex + 1)
         }
 
-        rotationIndex = this [92, 113, 197].indexOf(tileIndex);
+        rotationIndex = this [92, 113, 197].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(23, rotationIndex + 1)
         }
 
-        rotationIndex = this [116, 209, 71].indexOf(tileIndex);
+        rotationIndex = this [116, 209, 71].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(29, rotationIndex + 1)
         }
 
-        rotationIndex = this [124, 241, 199].indexOf(tileIndex);
+        rotationIndex = this [124, 241, 199].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(31, rotationIndex + 1)
         }
 
-        rotationIndex = this [93, 117, 213].indexOf(tileIndex);
+        rotationIndex = this [93, 117, 213].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(87, rotationIndex + 1)
         }
 
-        rotationIndex = this [125, 245, 215].indexOf(tileIndex);
+        rotationIndex = this [125, 245, 215].indexOf(tileIndex)
         if (rotationIndex >= 0) {
             return MonominoLookup(95, rotationIndex + 1)
         }
