@@ -1,20 +1,19 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.graphics.Bitmap
+import android.graphics.Bitmap.DENSITY_NONE
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.opengl.GLES20
+import android.util.DisplayMetrics.DENSITY_DEFAULT
 import oy.sarjakuvat.flamingin.bde.gles.GlUtil
 
-
 class DrawableToTexture(val width: Int, val height: Int) {
-    private val bitmap: Bitmap
+    private val bitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     private val canvas: Canvas
 
     init {
-        val options = BitmapFactory.Options()
-        options.inScaled = false
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmap.density = DENSITY_DEFAULT
         canvas = Canvas(bitmap)
     }
 

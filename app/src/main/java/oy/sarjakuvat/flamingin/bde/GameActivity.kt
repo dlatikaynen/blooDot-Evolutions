@@ -1,15 +1,16 @@
 package oy.sarjakuvat.flamingin.bde
 
 import android.app.Activity
-import android.os.Bundle
-import android.widget.RadioButton
-import android.widget.CheckBox
-import android.widget.TextView
 import android.icu.util.ULocale
+import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
+import android.widget.CheckBox
+import android.widget.RadioButton
+import android.widget.TextView
 import oy.sarjakuvat.flamingin.bde.rendition.RenderThread
-import java.lang.RuntimeException
+
 
 class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCallback {
     private var selectedSpriteGrade = 0
@@ -25,8 +26,9 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         selectedSpriteGrade = SURFACE_SIZE_FULL
-        fullScreenHeight = 512
-        fullScreenWidth = fullScreenHeight // want actual view size, but it's not avail
+        val metrics: DisplayMetrics = App.context.get()!!.resources.displayMetrics
+        fullScreenHeight = metrics.widthPixels
+        fullScreenWidth = metrics.heightPixels
         screenDimensions = Array(SURFACE_DIM.size) { IntArray(2) }
         updateControls()
         val sv = findViewById<SurfaceView>(R.id.game_surfaceView)

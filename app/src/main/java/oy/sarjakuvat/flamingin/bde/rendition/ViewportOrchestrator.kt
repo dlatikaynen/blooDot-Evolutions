@@ -1,5 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
@@ -17,8 +18,8 @@ class ViewportOrchestrator {
     private var width: Int = 0
     private var height: Int = 0
 
-    private var midpointOffsetX: Int = -500
-    private var midpointOffsetY: Int = -500
+    private var midpointOffsetX: Int = -720 / 2
+    private var midpointOffsetY: Int = -1280 / 2
 
     fun shareWithOffscreenFramebuffers(pictureTextureName: Int, textureProgram: ShaderTextureProgram) {
         spriteSheet.initializeSharedGpuNames(pictureTextureName, textureProgram)
@@ -43,28 +44,47 @@ class ViewportOrchestrator {
         val populator = DrawableToTexture(width, height)
         val sink = populator.sink
         sink.drawColor(Color.TRANSPARENT)
-        val paint = Paint()
-        paint.style = Paint.Style.STROKE
-        paint.color=Color.MAGENTA
-        sink.drawRoundRect(RectF(100f,100f,width - 100f,height - 100f),30f,30f, paint)
 
         /* debug-draw a clumsy pack in it */
         val gwT = GrayWallTileset()
         gwT.load()
         val tsP = TilesetPainter(gwT, sink)
 
-        for(y in 1..120) for(x in 1..30) {
-            sink.save()
-            sink.translate(x.toFloat() * tileSize, y.toFloat() * tileSize)
-            tsP.paintBlobTile(MonominoLookup.primeIndexShy)
-            sink.restore()
+        for(y in 2..36) {
+            placeTestTile(sink, tsP, 2, y)
+            placeTestTile(sink, tsP, 30, y)
         }
+
+        for(x in 2..30) {
+            placeTestTile(sink, tsP, x, 2)
+            placeTestTile(sink, tsP, x, 36)
+        }
+
+        placeTestTile(sink, tsP, 3, 3)
+
+        placeTestTile(sink, tsP, 35, 3)
+        placeTestTile(sink, tsP, 34, 4)
+
+        placeTestTile(sink, tsP, 35, 29)
+        placeTestTile(sink, tsP, 34, 28)
+        placeTestTile(sink, tsP, 33, 27)
+
+        placeTestTile(sink, tsP, 3, 29)
+        placeTestTile(sink, tsP, 4, 28)
+        placeTestTile(sink, tsP, 5, 27)
+        placeTestTile(sink, tsP, 6, 29)
 
         sink.save()
         sink.translate(15f * tileSize, 15f * tileSize)
         val tileSource = gwT.tileNumberToSheetCoordinates(GrayWallTileset.marbleFloor, 15,15)
         tsP.paintStaticTile(tileSource.x, tileSource.y)
         sink.restore()
+
+        val paint = Paint()
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 17f
+        paint.color=Color.MAGENTA
+        sink.drawRoundRect(RectF(100f,100f,width - 100f,height - 100f),30f,30f, paint)
 
 
         val textureName = populator.asNewTexture()
@@ -75,6 +95,13 @@ class ViewportOrchestrator {
             floorSlivers[i].populate()
             rooofSlivers[i].populate()
         }
+    }
+
+    private fun placeTestTile(sink: Canvas, tsP: TilesetPainter, x: Int, y: Int) {
+        sink.save()
+        sink.translate(x.toFloat() * tileSize, y.toFloat() * tileSize)
+        tsP.paintBlobTile(MonominoLookup.primeIndexShy)
+        sink.restore()
     }
 
     fun blitV8() {
@@ -146,8 +173,8 @@ class ViewportOrchestrator {
             width + midpointOffsetX, 0, width, -midpointOffsetY,
             0, -midpointOffsetY, -midpointOffsetX, height,
             /* bottom right src dest */
-            0, 0, -midpointOffsetX, -midpointOffsetY,
-            -midpointOffsetX, -midpointOffsetY, width, height         
+            0, 0, width + midpointOffsetX, height + midpointOffsetY,
+            width + midpointOffsetX, height + midpointOffsetY, width, height
         )
     }
     
