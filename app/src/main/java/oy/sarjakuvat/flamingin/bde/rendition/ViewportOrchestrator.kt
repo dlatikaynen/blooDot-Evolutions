@@ -53,29 +53,29 @@ class ViewportOrchestrator {
         gwT.load()
         val tsP = TilesetPainter(gwT, sink)
 
-        for (y in 2..36) {
-            placeTestTile(sink, tsP, 2, y)
-            placeTestTile(sink, tsP, 20, y)
+        for (x in 2..36) {
+            placeTestTile(sink, tsP, x, 2)
+            placeTestTile(sink, tsP, x, 20)
         }
 
-        for (x in 2..20) {
-            placeTestTile(sink, tsP, x, 2)
-            placeTestTile(sink, tsP, x, 36)
+        for (y in 2..20) {
+            placeTestTile(sink, tsP, 2, y)
+            placeTestTile(sink, tsP, 36, y)
         }
 
         placeTestTile(sink, tsP, 3, 3)
 
-        placeTestTile(sink, tsP, 3, 35)
-        placeTestTile(sink, tsP, 4, 34)
+        placeTestTile(sink, tsP, 35, 3)
+        placeTestTile(sink, tsP, 34, 4)
 
-        placeTestTile(sink, tsP, 19, 35)
-        placeTestTile(sink, tsP, 18, 34)
-        placeTestTile(sink, tsP, 17, 33)
+        placeTestTile(sink, tsP, 35, 19)
+        placeTestTile(sink, tsP, 34, 18)
+        placeTestTile(sink, tsP, 33, 17)
 
-        placeTestTile(sink, tsP, 19, 3)
-        placeTestTile(sink, tsP, 18, 4)
-        placeTestTile(sink, tsP, 17, 5)
-        placeTestTile(sink, tsP, 16, 6)
+        placeTestTile(sink, tsP, 3, 19)
+        placeTestTile(sink, tsP, 4, 18)
+        placeTestTile(sink, tsP, 5, 17)
+        placeTestTile(sink, tsP, 6, 16)
 
         sink.save()
         sink.translate(15f * tileSize, 15f * tileSize)
@@ -206,58 +206,46 @@ class ViewportOrchestrator {
             region[BottomRightDstBottom]
         )
 
+        /* OK ... bottom-left corner visible is FOUR
         spriteSheet.blit(
-            region[TopLeftSrcLeft],
-            region[TopLeftSrcTop],
-            region[TopLeftSrcRight],
-            region[TopLeftSrcBottom],
-            region[TopLeftDstLeft],
-            region[TopLeftDstTop],
-            region[TopLeftDstRight],
-            region[TopLeftDstBottom]
-        )
-
-        /*
-        spriteSheet.blit(
-            region[TopRightSrcLeft], region [TopRightSrcTop], region[TopRightSrcRight], region[TopRightSrcBottom],
-            region[TopRightDstLeft], region [TopRightDstTop], region[TopRightDstRight], region[TopRightDstBottom]
+            region[TopRightSrcLeft], region[TopRightSrcTop], region[TopRightSrcRight], region[TopRightSrcBottom],
+            region[TopRightDstLeft], region[TopRightDstTop], region[TopRightDstRight], region[TopRightDstBottom]
         )
         */
-        /* OK ... actually bottom right; top-left corner visible is FOUR */
+
+        /* OK ... bottom-right corner visible is THREE
         spriteSheet.blit(
             region[TopLeftSrcLeft], region [TopLeftSrcTop], region[TopLeftSrcRight], region[TopLeftSrcBottom],
             region[TopLeftDstLeft], region [TopLeftDstTop], region[TopLeftDstRight], region[TopLeftDstBottom]
         )
+        */
 
-
-        /* OK ... actually top left; visible in bottom-right corner is the TWO
+        /* OK ... visible in bottom-right corner is the ONE
         spriteSheet.blit(
             region[BottomRightSrcLeft], region [BottomRightSrcTop], region[BottomRightSrcRight], region[BottomRightSrcBottom],
             region[BottomRightDstLeft], region [BottomRightDstTop], region[BottomRightDstRight], region[BottomRightDstBottom]
         )
         */
 
-        /* OK ... actually bottom left; top-right corner visible is THREE
+        /* OK ... top-right corner visible is TWO */
         spriteSheet.blit(
             region[BottomLeftSrcLeft], region [BottomLeftSrcTop], region[BottomLeftSrcRight], region[BottomLeftSrcBottom],
             region[BottomLeftDstLeft], region [BottomLeftDstTop], region[BottomLeftDstRight], region[BottomLeftDstBottom]
         )
-        */
-
     }
 
     private fun getSliverRegion(): Array<Int> {
         return arrayOf(
-            /* top left src dst */
+            /* bottom left src dst */
             width + midpointOffsetX, height + midpointOffsetY, width, height,
             0, 0, -midpointOffsetX, -midpointOffsetY,
-            /* top right src dst */
+            /* bottom right src dst */
             0, height + midpointOffsetY, -midpointOffsetX, height,
             -midpointOffsetX, 0, width, -midpointOffsetY,
-            /* bottom left src dest */
+            /* top left src dest */
             width + midpointOffsetX, 0, width, -midpointOffsetY,
             0, -midpointOffsetY, -midpointOffsetX, height,
-            /* bottom right src dest */
+            /* top right src dest */
             0, 0, width + midpointOffsetX, height + midpointOffsetY,
             width + midpointOffsetX, height + midpointOffsetY, width, height
         )
@@ -281,40 +269,40 @@ class ViewportOrchestrator {
     }
 
     companion object {
-        private const val TopLeftSrcLeft = 0
-        private const val TopLeftSrcTop = 1
-        private const val TopLeftSrcRight = 2
-        private const val TopLeftSrcBottom = 3
-        private const val TopLeftDstLeft = 4
-        private const val TopLeftDstTop = 5
-        private const val TopLeftDstRight = 6
-        private const val TopLeftDstBottom = 7
+        private const val TopLeftSrcLeft = 16
+        private const val TopLeftSrcTop = 17
+        private const val TopLeftSrcRight = 18
+        private const val TopLeftSrcBottom = 19
+        private const val TopLeftDstLeft = 20
+        private const val TopLeftDstTop = 21
+        private const val TopLeftDstRight = 22
+        private const val TopLeftDstBottom = 23
 
-        private const val TopRightSrcLeft = 8
-        private const val TopRightSrcTop = 9
-        private const val TopRightSrcRight = 10
-        private const val TopRightSrcBottom = 11
-        private const val TopRightDstLeft = 12
-        private const val TopRightDstTop = 13
-        private const val TopRightDstRight = 14
-        private const val TopRightDstBottom = 15
+        private const val TopRightSrcLeft = 24
+        private const val TopRightSrcTop = 25
+        private const val TopRightSrcRight = 26
+        private const val TopRightSrcBottom = 27
+        private const val TopRightDstLeft = 28
+        private const val TopRightDstTop = 29
+        private const val TopRightDstRight = 30
+        private const val TopRightDstBottom = 31
 
-        private const val BottomLeftSrcLeft = 16
-        private const val BottomLeftSrcTop = 17
-        private const val BottomLeftSrcRight = 18
-        private const val BottomLeftSrcBottom = 19
-        private const val BottomLeftDstLeft = 20
-        private const val BottomLeftDstTop = 21
-        private const val BottomLeftDstRight = 22
-        private const val BottomLeftDstBottom = 23
+        private const val BottomLeftSrcLeft = 0
+        private const val BottomLeftSrcTop = 1
+        private const val BottomLeftSrcRight = 2
+        private const val BottomLeftSrcBottom = 3
+        private const val BottomLeftDstLeft = 4
+        private const val BottomLeftDstTop = 5
+        private const val BottomLeftDstRight = 6
+        private const val BottomLeftDstBottom = 7
 
-        private const val BottomRightSrcLeft = 24
-        private const val BottomRightSrcTop = 25
-        private const val BottomRightSrcRight = 26
-        private const val BottomRightSrcBottom = 27
-        private const val BottomRightDstLeft = 28
-        private const val BottomRightDstTop = 29
-        private const val BottomRightDstRight = 30
-        private const val BottomRightDstBottom = 31
+        private const val BottomRightSrcLeft = 8
+        private const val BottomRightSrcTop = 9
+        private const val BottomRightSrcRight = 10
+        private const val BottomRightSrcBottom = 11
+        private const val BottomRightDstLeft = 12
+        private const val BottomRightDstTop = 13
+        private const val BottomRightDstRight = 14
+        private const val BottomRightDstBottom = 15
     }
 }

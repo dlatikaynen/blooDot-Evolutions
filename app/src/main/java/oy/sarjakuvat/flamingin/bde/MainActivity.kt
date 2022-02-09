@@ -35,13 +35,15 @@ class MainActivity : Activity() {
             val tmp: MutableMap<String, Any?> = HashMap()
             tmp[TITLE] = menuItem[0]
             tmp[DESCRIPTION] = menuItem[1]
-            try {
-                val module = Class.forName("oy.sarjakuvat.flamingin.bde.${menuItem[2]}")
-                val intent = Intent()
-                intent.setClass(this, module)
-                tmp[CLASS_NAME] = intent
-            } catch (cEx: ClassNotFoundException) {
-                throw RuntimeException("Menu corrupted, missing ${menuItem[2]}", cEx)
+            if(menuItem[2].endsWith(Activity::class.simpleName!!)) {
+                try {
+                    val module = Class.forName("oy.sarjakuvat.flamingin.bde.${menuItem[2]}")
+                    val intent = Intent()
+                    intent.setClass(this, module)
+                    tmp[CLASS_NAME] = intent
+                } catch (cEx: ClassNotFoundException) {
+                    throw RuntimeException("Menu corrupted, missing ${menuItem[2]}", cEx)
+                }
             }
 
             menuItems.add(tmp)
@@ -66,7 +68,22 @@ class MainActivity : Activity() {
             arrayOf(
                 "The blooDot Evolutions Game",
                 "Development Environment",
+                "About"
+            ),
+            arrayOf(
+                "New Game",
+                "Start a new adventure",
                 "GameActivity"
+            ),
+            arrayOf(
+                "Load Game",
+                "Continue from a savepoint",
+                "Load"
+            ),
+            arrayOf(
+                "Quit",
+                "Close the game",
+                "Exit"
             )
         )
 
