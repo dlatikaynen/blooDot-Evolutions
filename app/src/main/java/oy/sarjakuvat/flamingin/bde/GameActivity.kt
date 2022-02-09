@@ -1,6 +1,7 @@
 package oy.sarjakuvat.flamingin.bde
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.icu.util.ULocale
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -23,6 +24,7 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "GameActivity::onCreate")
+        requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         selectedSpriteGrade = SURFACE_SIZE_FULL

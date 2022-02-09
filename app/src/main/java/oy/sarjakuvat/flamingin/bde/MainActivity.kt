@@ -1,27 +1,32 @@
 package oy.sarjakuvat.flamingin.bde
 
+import android.app.Activity
 import oy.sarjakuvat.flamingin.bde.gles.GpuSourceLoader.Companion.loadGpuSourceCode
-import android.app.ListActivity
 import android.os.Bundle
 import android.widget.SimpleAdapter
 import android.content.Intent
-import android.view.View
+import android.widget.AdapterView
 import android.widget.ListView
 import java.lang.RuntimeException
 import java.util.ArrayList
 import java.util.HashMap
 
-class MainActivity : ListActivity() {
+class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        listAdapter = SimpleAdapter(
+        val listView = findViewById<ListView>(android.R.id.list)
+        listView.adapter = SimpleAdapter(
             this,
             buildMainMenu(),
             android.R.layout.two_line_list_item,
             arrayOf(TITLE, DESCRIPTION),
             intArrayOf(android.R.id.text1, android.R.id.text2)
         )
+
+        listView.setOnItemClickListener {
+            list, _, position, _ -> onListItemClick(list, position)
+        }
     }
 
     private fun buildMainMenu(): List<Map<String, Any?>> {
@@ -45,7 +50,7 @@ class MainActivity : ListActivity() {
         return menuItems
     }
 
-    override fun onListItemClick(listView: ListView, view: View, position: Int, id: Long) {
+    private fun onListItemClick(listView: AdapterView<*>, position: Int) {
         val map = listView.getItemAtPosition(position) as Map<*, *>
         val intent = map[CLASS_NAME] as Intent?
         startActivity(intent)

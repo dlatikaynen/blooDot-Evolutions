@@ -1,13 +1,14 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import oy.sarjakuvat.flamingin.bde.GameActivity
 import java.lang.RuntimeException
 import java.lang.ref.WeakReference
 
-class RenderHandler(rt: RenderThread) : Handler() {
+class RenderHandler(rt: RenderThread) : Handler(Looper.myLooper()!!) {
     private val renderThreadRef: WeakReference<RenderThread> = WeakReference(rt)
 
     fun sendSurfaceCreated() {

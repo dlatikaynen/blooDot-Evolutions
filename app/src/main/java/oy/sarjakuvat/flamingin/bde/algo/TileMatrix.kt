@@ -21,11 +21,11 @@ class TileMatrix(val size: Int) {
         return matrix[rowIndex][colIndex]
     }
 
-    fun setElement(colIndex: Int, rowIndex: Int) {
+    private fun setElement(colIndex: Int, rowIndex: Int) {
         (matrix[rowIndex])[colIndex] = true
     }
 
-    fun clearElement(colIndex: Int, rowIndex: Int) {
+    private fun clearElement(colIndex: Int, rowIndex: Int) {
         matrix[rowIndex][colIndex] = false
     }
 
