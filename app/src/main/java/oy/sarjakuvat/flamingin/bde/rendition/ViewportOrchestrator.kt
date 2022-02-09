@@ -18,8 +18,8 @@ class ViewportOrchestrator {
     private var width: Int = 0
     private var height: Int = 0
 
-    private var midpointOffsetX: Int = -1280 / 2
-    private var midpointOffsetY: Int = -720 / 2
+    private var midpointOffsetX: Int = -640 / 2
+    private var midpointOffsetY: Int = -360 / 2
 
     fun shareWithOffscreenFramebuffers(
         pictureTextureName: Int,
@@ -53,29 +53,29 @@ class ViewportOrchestrator {
         gwT.load()
         val tsP = TilesetPainter(gwT, sink)
 
-        for (x in 2..36) {
+        for (x in 2..18) {
             placeTestTile(sink, tsP, x, 2)
-            placeTestTile(sink, tsP, x, 20)
+            placeTestTile(sink, tsP, x, 10)
         }
 
-        for (y in 2..20) {
+        for (y in 2..10) {
             placeTestTile(sink, tsP, 2, y)
-            placeTestTile(sink, tsP, 36, y)
+            placeTestTile(sink, tsP, 18, y)
         }
 
         placeTestTile(sink, tsP, 3, 3)
 
-        placeTestTile(sink, tsP, 35, 3)
-        placeTestTile(sink, tsP, 34, 4)
+        placeTestTile(sink, tsP, 17, 3)
+        placeTestTile(sink, tsP, 16, 4)
 
-        placeTestTile(sink, tsP, 35, 19)
-        placeTestTile(sink, tsP, 34, 18)
-        placeTestTile(sink, tsP, 33, 17)
+        placeTestTile(sink, tsP, 17, 9)
+        placeTestTile(sink, tsP, 16, 8)
+        placeTestTile(sink, tsP, 15, 7)
 
-        placeTestTile(sink, tsP, 3, 19)
-        placeTestTile(sink, tsP, 4, 18)
-        placeTestTile(sink, tsP, 5, 17)
-        placeTestTile(sink, tsP, 6, 16)
+        placeTestTile(sink, tsP, 3, 9)
+        placeTestTile(sink, tsP, 4, 8)
+        placeTestTile(sink, tsP, 5, 7)
+        placeTestTile(sink, tsP, 6, 6)
 
         sink.save()
         sink.translate(15f * tileSize, 15f * tileSize)
@@ -93,7 +93,6 @@ class ViewportOrchestrator {
         val textureName = populator.asNewTexture()
         spriteSheet.populate(textureName)
         populator.deleteTextureAfterUse(textureName)
-
         for (i in floorSlivers.indices) {
             floorSlivers[i].populate()
             rooofSlivers[i].populate()

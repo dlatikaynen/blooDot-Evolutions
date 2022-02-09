@@ -25,16 +25,17 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "GameActivity::onCreate")
         requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        val metrics: DisplayMetrics = App.context.get()!!.resources.displayMetrics
+        fullScreenHeight = metrics.widthPixels / 2
+        fullScreenWidth = metrics.heightPixels / 2
+        screenDimensions = Array(SURFACE_DIM.size) { IntArray(2) }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         selectedSpriteGrade = SURFACE_SIZE_FULL
-        val metrics: DisplayMetrics = App.context.get()!!.resources.displayMetrics
-        fullScreenHeight = metrics.widthPixels
-        fullScreenWidth = metrics.heightPixels
-        screenDimensions = Array(SURFACE_DIM.size) { IntArray(2) }
         updateControls()
-        val sv = findViewById<SurfaceView>(R.id.game_surfaceView)
-        sv.holder.addCallback(this)
+        val surfaceView = findViewById<SurfaceView>(R.id.game_surfaceView)
+        surfaceView.holder.setFixedSize(fullScreenHeight, fullScreenWidth)
+        surfaceView.holder.addCallback(this)
     }
 
     override fun onPause() {

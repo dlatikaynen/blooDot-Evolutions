@@ -140,8 +140,8 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         screenInnerRight = width - 1 - edgeWidth
         screenInnerTop = height - 1 - edgeWidth
 
-        Log.d(GameActivity.TAG, "mTri: $spriteTriangle")
-        Log.d(GameActivity.TAG, "mRect: $spriteRectangle")
+        Log.d(GameActivity.TAG, "spriteTriangle: $spriteTriangle")
+        Log.d(GameActivity.TAG, "spriteRectangle: $spriteRectangle")
         destroyOffscreenFramebuffers()
         prepareOffscreenFramebuffers(width, height)
         populateOffscreenFramebuffers()
