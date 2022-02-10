@@ -10,6 +10,7 @@ import android.view.*
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.TextView
+import oy.sarjakuvat.flamingin.bde.level.Arena
 import oy.sarjakuvat.flamingin.bde.rendition.RenderThread
 
 
@@ -20,6 +21,7 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
     private var useFlatShading = false
     private var renderThread: RenderThread? = null
 
+    private lateinit var arena : Arena
     private lateinit var screenDimensions: Array<IntArray>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +37,13 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         updateControls()
         val surfaceView = findViewById<SurfaceView>(R.id.game_surfaceView)
         surfaceView.holder.setFixedSize(fullScreenHeight, fullScreenWidth)
+        prepareArena()
         surfaceView.holder.addCallback(this)
+    }
+
+    private fun prepareArena() {
+        arena = Arena()
+        arena.load()
     }
 
     override fun onPause() {
@@ -93,11 +101,7 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.d(
-            TAG, "surfaceChanged fmt=" + format + " size=" + width + "x" + height +
-                    " holder=" + holder
-        )
-
+        Log.d(TAG, "surfaceChanged fmt=$format size=$width by $height; holder=$holder")
         val rh = renderThread!!.handler
         rh?.sendSurfaceChanged(width, height)
     }

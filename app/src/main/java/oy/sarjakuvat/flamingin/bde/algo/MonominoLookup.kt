@@ -2,6 +2,7 @@ package oy.sarjakuvat.flamingin.bde.algo
 
 class MonominoLookup(val primeIndex: Int, val numRotations: Int = 0) {
     companion object {
+        const val coalesceWithNeighbors = -1
         const val primeIndexShy = 0
         const val primeIndexU = 1
         const val primeIndexKnee = 5

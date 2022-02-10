@@ -8,7 +8,7 @@ import oy.sarjakuvat.flamingin.bde.rendition.offscreen.BlobPainterBase
 import java.lang.IllegalArgumentException
 
 class GrayWallTileset : BlobPainterBase() {
-    private val basePaint =Paint()
+    private val basePaint = Paint()
     private val decoPaint = Paint()
 
     override val spriteSheetName get() = R.drawable.tile_set_001
@@ -108,21 +108,19 @@ class GrayWallTileset : BlobPainterBase() {
 
     override fun tileNumberToBaseSheetPosition(tileNumber: Int): Point {
         return when(tileNumber) {
-            marbleFloor -> return Point(0, 0)
+            TileCatalog.FloorTiles.marbleFloor -> return Point(0, 0)
             else -> throw IllegalArgumentException("The number $tileNumber is not a valid value for  tileNumber in ${GrayWallTileset::class.simpleName}")
         }
     }
 
     override fun tilePartitionSizeOnSheet(tileNumber: Int) : Size {
         return when(tileNumber) {
-            marbleFloor -> Size(3, 3)
+            TileCatalog.FloorTiles.marbleFloor -> Size(3, 3)
             else -> super.tilePartitionSizeOnSheet(tileNumber)
         }
     }
 
     companion object {
-        const val marbleFloor = 1
-
         const val cornerNWx = tileSize / 7f
         const val cornerNWy = cornerNWx
         const val cornerNEx = tileSize - tileSize / 7f

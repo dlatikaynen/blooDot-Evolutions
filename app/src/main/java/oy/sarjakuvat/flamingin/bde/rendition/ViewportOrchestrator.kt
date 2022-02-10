@@ -7,6 +7,7 @@ import android.graphics.RectF
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
+import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
@@ -79,7 +80,7 @@ class ViewportOrchestrator {
 
         sink.save()
         sink.translate(15f * tileSize, 15f * tileSize)
-        val tileSource = gwT.tileNumberToSheetCoordinates(GrayWallTileset.marbleFloor, 15, 15)
+        val tileSource = gwT.tileNumberToSheetCoordinates(TileCatalog.FloorTiles.marbleFloor, 15, 15)
         tsP.paintStaticTile(tileSource.x, tileSource.y)
         sink.restore()
 
