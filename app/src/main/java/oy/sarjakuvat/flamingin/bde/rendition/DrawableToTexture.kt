@@ -2,9 +2,11 @@ package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.opengl.GLES20
 import android.util.DisplayMetrics.DENSITY_DEFAULT
 import oy.sarjakuvat.flamingin.bde.gles.GlUtil
+import java.lang.IllegalStateException
 
 class DrawableToTexture(val width: Int, val height: Int) {
     private val bitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -17,10 +19,20 @@ class DrawableToTexture(val width: Int, val height: Int) {
 
     val sink: Canvas get() = canvas
 
+    fun clearBitmapBeforeUse() {
+        bitmap.eraseColor(Color.TRANSPARENT)
+    }
+
     fun asNewTexture() : Int {
-        val textureName = GlUtil.createBitmapTexture(bitmap)
+        return GlUtil.createBitmapTexture(bitmap)
+    }
+
+    fun deleteBitmapAfterUse() {
+        if(bitmap.isRecycled) {
+            throw IllegalStateException("Attempt to recycle a recycled bitmap")
+        }
+
         bitmap.recycle()
-        return textureName
     }
 
     fun deleteTextureAfterUse(textureName: Int) {

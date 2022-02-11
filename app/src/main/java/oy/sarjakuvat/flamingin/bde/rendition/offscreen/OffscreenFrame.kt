@@ -5,7 +5,6 @@ import android.opengl.GLES30
 import android.util.Log
 import oy.sarjakuvat.flamingin.bde.gles.*
 import java.lang.RuntimeException
-import kotlin.random.Random
 
 class OffscreenFrame {
     private var width: Int = 0
@@ -109,7 +108,7 @@ class OffscreenFrame {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBufferId)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glDisable(GLES20.GL_CULL_FACE)
-        GLES20.glClearColor(Random.nextFloat(), Random.nextFloat(), Random.nextFloat(), 1.0f)
+        GLES20.glClearColor(0f, 0f, 0f, 0.5f) /* initialize with transparency */
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Textures may include alpha

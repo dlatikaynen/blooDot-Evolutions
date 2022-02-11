@@ -5,14 +5,14 @@ import android.util.Size
 import oy.sarjakuvat.flamingin.bde.App
 
 abstract class TilePainterBase {
-    private lateinit var spriteSheet: Bitmap
+    private lateinit var staticTilesBitmap: Bitmap
     private val paint: Paint = Paint()
 
     open val spriteSheetName : Int get() = 0
 
     fun load() {
         if(spriteSheetName != 0) {
-            spriteSheet = BitmapFactory.decodeResource(App.context.get()!!.resources, spriteSheetName)
+            staticTilesBitmap = BitmapFactory.decodeResource(App.context.get()!!.resources, spriteSheetName)
         }
     }
 
@@ -42,7 +42,7 @@ abstract class TilePainterBase {
         val srcLeft = 1 + (tileSize + 1) * indexOnSpriteSheetX
         val srcTop = 1 + (tileSize + 1) * indexOnSpriteSheetY
         paintTo.drawBitmap(
-            spriteSheet,
+            staticTilesBitmap,
             Rect(
                 srcLeft,
                 srcTop,

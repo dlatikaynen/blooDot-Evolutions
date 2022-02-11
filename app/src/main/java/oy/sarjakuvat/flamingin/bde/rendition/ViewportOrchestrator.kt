@@ -1,9 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
@@ -48,7 +45,54 @@ class ViewportOrchestrator {
     fun populateOffscreenFramebuffers() {
         /* we want a populated sprite sheet first */
         val populator = DrawableToTexture(width, height)
+        var textureName: Int
+//        generateTestSheetTexture(populator)
+//        var textureName = populator.asNewTexture()
+//        spriteSheet.populate(textureName)
+//        populator.deleteTextureAfterUse(textureName)
+        val rooofPopulator = DrawableToTexture(width, height)
+        for (i in floorSlivers.indices) {
+            populateSheet(populator, rooofPopulator)
+            textureName = populator.asNewTexture()
+            floorSlivers[i].populate(textureName)
+            populator.deleteTextureAfterUse(textureName)
+
+            val rooofTextureName = rooofPopulator.asNewTexture()
+            rooofSlivers[i].populate(rooofTextureName)
+            rooofPopulator.deleteTextureAfterUse(rooofTextureName)
+        }
+
+        rooofPopulator.deleteBitmapAfterUse()
+        populator.deleteBitmapAfterUse()
+    }
+
+    private fun populateSheet(floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+        val floorSink = floorPopulator.sink
+        val rooofSink = rooofPopulator.sink
+        floorPopulator.clearBitmapBeforeUse()
+        rooofPopulator.clearBitmapBeforeUse()
+        floorSink.drawColor(Color.argb(0.5f, 0.75f,0.75f,0.7f), PorterDuff.Mode.DST_IN)
+        rooofSink.drawColor(Color.argb(0.5f,1f,0f,0f), PorterDuff.Mode.DST_IN)
+
+        val paint = Paint()
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 17f
+        paint.color = Color.MAGENTA
+        floorSink.drawRoundRect(RectF(100f, 100f, width - 100f, height - 100f), 30f, 30f, paint)
+
+        paint.color = Color.argb(0.5f,0f,1f,0f)
+        paint.style = Paint.Style.FILL
+        floorSink.drawRect(80f,height-120f,120f,height - 80f, paint)
+        paint.style = Paint.Style.STROKE
+
+        paint.strokeWidth = 5f
+        paint.color = Color.RED
+        rooofSink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
+    }
+
+    private fun generateTestSheetTexture(populator: DrawableToTexture) {
         val sink = populator.sink
+        populator.clearBitmapBeforeUse()
         sink.drawColor(Color.TRANSPARENT)
 
         /* debug-draw a clumsy pack in it */
@@ -96,14 +140,6 @@ class ViewportOrchestrator {
         paint.strokeWidth = 5f
         paint.color = Color.YELLOW
         sink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
-
-        val textureName = populator.asNewTexture()
-        spriteSheet.populate(textureName)
-        populator.deleteTextureAfterUse(textureName)
-        for (i in floorSlivers.indices) {
-            floorSlivers[i].populate()
-            rooofSlivers[i].populate()
-        }
     }
 
     private fun placeTestTile(sink: Canvas, tsP: TilesetPainter, x: Int, y: Int) {
@@ -190,16 +226,16 @@ class ViewportOrchestrator {
             region[BottomLeftDstBottom]
         )
 
-        topRightR.blit(
-            region[TopRightSrcLeft],
-            region[TopRightSrcTop],
-            region[TopRightSrcRight],
-            region[TopRightSrcBottom],
-            region[TopRightDstLeft],
-            region[TopRightDstTop],
-            region[TopRightDstRight],
-            region[TopRightDstBottom]
-        )
+//        topRightR.blit(
+//            region[TopRightSrcLeft],
+//            region[TopRightSrcTop],
+//            region[TopRightSrcRight],
+//            region[TopRightSrcBottom],
+//            region[TopRightDstLeft],
+//            region[TopRightDstTop],
+//            region[TopRightDstRight],
+//            region[TopRightDstBottom]
+//        )
 
         bottomRightR.blit(
             region[BottomRightSrcLeft],
@@ -212,29 +248,30 @@ class ViewportOrchestrator {
             region[BottomRightDstBottom]
         )
 
+        // old test code remove as soon as definitely obsolete
         /* CONFIRMED top left, visible in the bottom right corner is the THREE */
-        spriteSheet.blit(
-            region[TopLeftSrcLeft], region [TopLeftSrcTop], region[TopLeftSrcRight], region[TopLeftSrcBottom],
-            region[TopLeftDstLeft], region [TopLeftDstTop], region[TopLeftDstRight], region[TopLeftDstBottom]
-        )
+//        spriteSheet.blit(
+//            region[TopLeftSrcLeft], region [TopLeftSrcTop], region[TopLeftSrcRight], region[TopLeftSrcBottom],
+//            region[TopLeftDstLeft], region [TopLeftDstTop], region[TopLeftDstRight], region[TopLeftDstBottom]
+//        )
 
         /* CONFIRMED top right, visible in the bottom left corner is the FOUR */
-        spriteSheet.blit(
-            region[TopRightSrcLeft], region[TopRightSrcTop], region[TopRightSrcRight], region[TopRightSrcBottom],
-            region[TopRightDstLeft], region[TopRightDstTop], region[TopRightDstRight], region[TopRightDstBottom]
-        )
+//        spriteSheet.blit(
+//            region[TopRightSrcLeft], region[TopRightSrcTop], region[TopRightSrcRight], region[TopRightSrcBottom],
+//            region[TopRightDstLeft], region[TopRightDstTop], region[TopRightDstRight], region[TopRightDstBottom]
+//        )
 
         /* CONFIRMED bottom left, visible in the top right corner is the TWO */
-        spriteSheet.blit(
-            region[BottomLeftSrcLeft], region [BottomLeftSrcTop], region[BottomLeftSrcRight], region[BottomLeftSrcBottom],
-            region[BottomLeftDstLeft], region [BottomLeftDstTop], region[BottomLeftDstRight], region[BottomLeftDstBottom]
-        )
+//        spriteSheet.blit(
+//            region[BottomLeftSrcLeft], region [BottomLeftSrcTop], region[BottomLeftSrcRight], region[BottomLeftSrcBottom],
+//            region[BottomLeftDstLeft], region [BottomLeftDstTop], region[BottomLeftDstRight], region[BottomLeftDstBottom]
+//        )
 
         /* CONFIRMED bottom right, visible in the top left corner is the ONE */
-        spriteSheet.blit(
-            region[BottomRightSrcLeft], region [BottomRightSrcTop], region[BottomRightSrcRight], region[BottomRightSrcBottom],
-            region[BottomRightDstLeft], region [BottomRightDstTop], region[BottomRightDstRight], region[BottomRightDstBottom]
-        )
+//        spriteSheet.blit(
+//            region[BottomRightSrcLeft], region [BottomRightSrcTop], region[BottomRightSrcRight], region[BottomRightSrcBottom],
+//            region[BottomRightDstLeft], region [BottomRightDstTop], region[BottomRightDstRight], region[BottomRightDstBottom]
+//        )
     }
 
     private fun getSliverRegion(): Array<Int> {
