@@ -10,6 +10,8 @@ import android.view.*
 import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.TextView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import oy.sarjakuvat.flamingin.bde.level.Arena
 import oy.sarjakuvat.flamingin.bde.rendition.RenderThread
 
@@ -21,7 +23,6 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
     private var useFlatShading = false
     private var renderThread: RenderThread? = null
 
-    private lateinit var arena : Arena
     private lateinit var screenDimensions: Array<IntArray>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,13 +38,14 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         updateControls()
         val surfaceView = findViewById<SurfaceView>(R.id.game_surfaceView)
         surfaceView.holder.setFixedSize(fullScreenHeight, fullScreenWidth)
-        prepareArena()
         surfaceView.holder.addCallback(this)
     }
 
     private fun prepareArena() {
-        arena = Arena()
-        arena.load()
+        Arena.load()
+        if(BuildConfig.DEBUG) {
+            GlobalScope.launch { Arena.dumpDebugInfo() }
+        }
     }
 
     override fun onPause() {
@@ -95,6 +97,9 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         val renderHandler = renderThread!!.handler
         renderHandler?.sendSetFlatShading(useFlatShading)
         renderHandler?.sendSurfaceCreated()
+
+        /* load our working data */
+        prepareArena()
 
         /* kick it off */
         Choreographer.getInstance().postFrameCallback(this)
