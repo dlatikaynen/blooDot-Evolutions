@@ -1,6 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.gles
 
-import android.support.annotation.RawRes
+import androidx.annotation.RawRes
 import oy.sarjakuvat.flamingin.bde.App
 import oy.sarjakuvat.flamingin.bde.extensions.getRawTextFile
 

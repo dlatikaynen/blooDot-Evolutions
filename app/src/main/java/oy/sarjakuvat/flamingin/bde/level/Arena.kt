@@ -12,6 +12,11 @@ object Arena {
     private const val midpointX = 512
     private const val midpointY = 512
 
+    private var minOccupiedGridX = midpointX
+    private var maxOccupiedGridX = midpointX
+    private var minOccupiedGridY = midpointY
+    private var maxOccupiedGridY = midpointY
+
     var cells: Array<Array<Cell?>> = Array(gridUnitsEW) {
         Array(gridUnitsNS) { null }
     }
@@ -57,20 +62,30 @@ object Arena {
                 }
             }
 
-            Log.d(Arena::class.simpleName, " #*# ${countCellsNull.toString().padStart(9)} null")
+            Log.d(Arena::class.simpleName, " #*# arena is $gridUnitsEW wide by $gridUnitsNS tall")
+            Log.d(
+                Arena::class.simpleName,
+                "   # bounding box is ($minOccupiedGridX, $minOccupiedGridY) - ($maxOccupiedGridX, $maxOccupiedGridY)"
+            )
+
+            Log.d(Arena::class.simpleName, "  -# ${countCellsNull.toString().padStart(9)} null")
             Log.d(Arena::class.simpleName, "   # ${countCellsEmpty.toString().padStart(9)} empty")
+
             Log.d(
                 Arena::class.simpleName,
                 "   # ${countCellsOccupied.toString().padStart(9)} occupied"
             )
+
             Log.d(
                 Arena::class.simpleName,
                 "   # ${countGridlockedEntities.toString().padStart(9)} gridlocked entities"
             )
+
             Log.d(
                 Arena::class.simpleName,
                 "   # ${countComplexEntities.toString().padStart(9)} complex entities"
             )
+
             Log.d(
                 Arena::class.simpleName,
                 "  ~# ${shadowClones.count().toString().padStart(9)} shadow clones"
@@ -86,6 +101,10 @@ object Arena {
     }
 
     private fun ensureCell(gridX: Int, gridY: Int) : Cell {
+        minOccupiedGridX = minOccupiedGridX.coerceAtMost(gridX)
+        maxOccupiedGridX = maxOccupiedGridX.coerceAtLeast(gridX)
+        minOccupiedGridY = minOccupiedGridY.coerceAtMost(gridY)
+        maxOccupiedGridY = maxOccupiedGridY.coerceAtLeast(gridY)
         var haveCell: Cell? = cells[gridX][gridY]
         if(haveCell == null)
         {
