@@ -12,15 +12,15 @@ class OffscreenFrame {
     private var height: Int = 0
     private var projectionMatrix = FloatArray(16)
 
-    private var mOffscreenFramebuffer = 0
-    private var mOffscreenTexture = 0
-    private var mOffscreenRenderBuffer = 0
-    private var mTextureName = 0
-    private lateinit var mTextureProgram: ShaderTextureProgram
+    private var frameBufferId = 0
+    private var containedTextureId = 0
+    private var renderBufferId = 0
+    private var sourceTextureId = 0
+    private lateinit var textureShaderId: ShaderTextureProgram
 
-    fun initializeSharedGpuNames(sharedTextureName: Int, sharedTextureProgram: ShaderTextureProgram) {
-        mTextureName = sharedTextureName
-        mTextureProgram = sharedTextureProgram
+    fun initializeSharedGpuNames(sharedSourceTextureId: Int, sharedTextureProgram: ShaderTextureProgram) {
+        sourceTextureId = sharedSourceTextureId
+        textureShaderId = sharedTextureProgram
     }
 
     fun prepareOffscreenFramebuffer(newWidth: Int, newHeight: Int, newProjectionMatrix: FloatArray) {
@@ -32,9 +32,9 @@ class OffscreenFrame {
         GlUtil.checkGlError("prepareOffscreenFramebuffer::begin")
         GLES20.glGenTextures(1, values, 0)
         GlUtil.checkGlError("glGenTextures")
-        mOffscreenTexture = values[0] // expected > 0
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mOffscreenTexture)
-        GlUtil.checkGlError("glBindTexture $mOffscreenTexture")
+        containedTextureId = values[0] // expected > 0
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, containedTextureId)
+        GlUtil.checkGlError("glBindTexture $containedTextureId")
         GLES20.glTexImage2D(
             GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0,
             GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null
@@ -63,14 +63,14 @@ class OffscreenFrame {
         GlUtil.checkGlError("glTexParameter")
         GLES20.glGenFramebuffers(1, values, 0)
         GlUtil.checkGlError("glGenFramebuffers")
-        mOffscreenFramebuffer = values[0] // expected > 0
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mOffscreenFramebuffer)
-        GlUtil.checkGlError("glBindFramebuffer $mOffscreenFramebuffer")
+        frameBufferId = values[0]
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBufferId)
+        GlUtil.checkGlError("glBindFramebuffer $frameBufferId")
         GLES20.glGenRenderbuffers(1, values, 0)
         GlUtil.checkGlError("glGenRenderbuffers")
-        mOffscreenRenderBuffer = values[0] // expected > 0
-        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, mOffscreenRenderBuffer)
-        GlUtil.checkGlError("glBindRenderbuffer $mOffscreenRenderBuffer")
+        renderBufferId = values[0]
+        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, renderBufferId)
+        GlUtil.checkGlError("glBindRenderbuffer $renderBufferId")
         GLES20.glRenderbufferStorage(
             GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16,
             width, height
@@ -79,13 +79,13 @@ class OffscreenFrame {
         GlUtil.checkGlError("glRenderbufferStorage")
         GLES20.glFramebufferRenderbuffer(
             GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT,
-            GLES20.GL_RENDERBUFFER, mOffscreenRenderBuffer
+            GLES20.GL_RENDERBUFFER, renderBufferId
         )
 
         GlUtil.checkGlError("glFramebufferRenderbuffer")
         GLES20.glFramebufferTexture2D(
             GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-            GLES20.GL_TEXTURE_2D, mOffscreenTexture, 0
+            GLES20.GL_TEXTURE_2D, containedTextureId, 0
         )
 
         GlUtil.checkGlError("glFramebufferTexture2D")
@@ -98,15 +98,15 @@ class OffscreenFrame {
         GlUtil.checkGlError("prepareOfflineFramebuffers done")
     }
 
-    fun populate(textureName: Int = mTextureName) {
+    fun populate(useTexture: Int = sourceTextureId) {
         val mPictDrawable = Drawable2dBase(Drawable2dBase.ShapePrimitive.CenteredUnitRect)
         val mPict = Sprite2d(mPictDrawable)
-        mPict.setTexture(textureName)
+        mPict.setTexture(useTexture)
         mPict.setScale(width.toFloat(), height.toFloat())
         mPict.setPosition(width / 2f, height / 2f)
         Log.d(OffscreenFrame::class.simpleName, "mPict: $mPict")
         GlUtil.checkGlError("drawToOffscreenFramebuffers start")
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mOffscreenFramebuffer)
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBufferId)
         GLES20.glDisable(GLES20.GL_DEPTH_TEST)
         GLES20.glDisable(GLES20.GL_CULL_FACE)
         GLES20.glClearColor(Random.nextFloat(), Random.nextFloat(), Random.nextFloat(), 1.0f)
@@ -115,7 +115,7 @@ class OffscreenFrame {
         // Textures may include alpha
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
-        mPict.draw(mTextureProgram, projectionMatrix)
+        mPict.draw(textureShaderId, projectionMatrix)
         GLES20.glDisable(GLES20.GL_BLEND)
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
         GlUtil.checkGlError("drawToOffscreenFramebuffers complete")
@@ -131,7 +131,7 @@ class OffscreenFrame {
         dstRight: Int,
         dstBottom: Int
     ) {
-        GLES30.glBindFramebuffer(GLES30.GL_READ_FRAMEBUFFER, mOffscreenFramebuffer)
+        GLES30.glBindFramebuffer(GLES30.GL_READ_FRAMEBUFFER, frameBufferId)
         GLES30.glBlitFramebuffer(
             srcLeft, srcTop, srcRight, srcBottom,
             dstLeft, dstTop, dstRight, dstBottom,
@@ -150,17 +150,17 @@ class OffscreenFrame {
 
     fun destroyOffscreenFramebuffer() {
         val values = IntArray(1)
-        if (mOffscreenFramebuffer != 0) {
-            values[0] = mOffscreenRenderBuffer
+        if (frameBufferId != 0) {
+            values[0] = renderBufferId
             GLES20.glDeleteRenderbuffers(1, values, 0)
             GlUtil.checkGlError("glDeleteRenderbuffers")
-            values[0] = mOffscreenFramebuffer
+            values[0] = frameBufferId
             GLES20.glDeleteFramebuffers(1, values, 0)
             GlUtil.checkGlError("glDeleteFramebuffers")
-            values[0] = mOffscreenTexture
+            values[0] = containedTextureId
             GLES20.glDeleteTextures(1, values, 0)
             GlUtil.checkGlError("glDeleteTextures")
-            mOffscreenFramebuffer = 0
+            frameBufferId = 0
         }
     }
 }
