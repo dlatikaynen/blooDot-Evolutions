@@ -40,8 +40,8 @@ object Arena {
             var countCellsOccupied = 0
             var countGridlockedEntities = 0
             var countComplexEntities = 0
-            for (y in 0 until gridUnitsNS) {
-                for (x in 0 until gridUnitsEW) {
+            for (y in minOccupiedGridY..maxOccupiedGridY) {
+                for (x in minOccupiedGridX..maxOccupiedGridX) {
                     val cell = cells[x][y]
                     if (cell == null) {
                         ++countCellsNull
