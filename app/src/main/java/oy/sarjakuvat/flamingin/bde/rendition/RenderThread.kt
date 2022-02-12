@@ -173,7 +173,7 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
 
     private fun destroyOffscreenFramebuffers() {
         /* only attempt deallocating if middle one indicates prior allocation */
-        if(viewportOrchestrator.getFloorSliver(1,1).textureId != 0) {
+        if(viewportOrchestrator.getViewportSliver(1,1).floorTextureId != 0) {
             viewportOrchestrator.destroyOffscreenFramebuffers()
         }
     }

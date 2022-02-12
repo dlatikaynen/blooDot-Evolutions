@@ -9,8 +9,8 @@ import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 object Arena {
     private const val gridUnitsEW = 1024
     private const val gridUnitsNS = 1024
-    private const val midpointX = 512
-    private const val midpointY = 512
+    const val midpointX = 512
+    const val midpointY = 512
 
     private var minOccupiedGridX = midpointX
     private var maxOccupiedGridX = midpointX

@@ -9,10 +9,10 @@ import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
+import kotlin.math.ceil
 
 class ViewportOrchestrator {
-    private val floorSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
-    private val rooofSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
+    private val viewportSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
     private val spriteSheet: OffscreenFrame = OffscreenFrame()
     private var width: Int = 0
     private var height: Int = 0
@@ -43,26 +43,42 @@ class ViewportOrchestrator {
         spriteSheet.populate(textureName)
         populator.deleteTextureAfterUse(textureName)
         val rooofPopulator = DrawableToTexture(width, height)
-        for (i in floorSlivers.indices) {
-            populateSheet(populator, rooofPopulator)
-            floorSlivers[i].textureId = populator.asNewTexture()
-            rooofSlivers[i].textureId = rooofPopulator.asNewTexture()
+        for (i in viewportSlivers.indices) {
+            populateSheet(viewportSlivers[i], populator, rooofPopulator)
         }
 
         rooofPopulator.deleteBitmapAfterUse()
         populator.deleteBitmapAfterUse()
     }
 
-    private fun populateSheet(floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+    private fun populateSheet(viewportSliver: ViewportSliver, floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+        val paint = Paint()
+        paint.style = Paint.Style.STROKE
         val floorSink = floorPopulator.sink
         val rooofSink = rooofPopulator.sink
         floorPopulator.clearBitmapBeforeUse()
         rooofPopulator.clearBitmapBeforeUse()
+
+        /* debug grid */
+        var numTilesX = ceil(width / tileSize.toFloat()).toInt()
+        var gridWidth = numTilesX * tileSize
+        var gridLeft = midpointOffsetX - gridWidth / 2f
+        for(x in 0 until numTilesX) {
+            var xPos = gridLeft + x * tileSize
+            floorSink.drawLine(xPos, 0f, xPos, height.toFloat(), paint)
+        }
+
+        var numTilesY = ceil(height / tileSize.toFloat()).toInt()
+        var gridHeight = numTilesY * tileSize
+        var gridTop = midpointOffsetY - gridHeight / 2f
+        for(y in 0 until numTilesY) {
+            var yPos = gridTop + y * tileSize
+            floorSink.drawLine(0f, yPos, width.toFloat(), yPos, paint)
+        }
+
         floorSink.drawColor(Color.argb(0.2f, 0.75f,0.75f,0.7f))
         rooofSink.drawColor(Color.argb(0.2f,1f,0f,0f))
 
-        val paint = Paint()
-        paint.style = Paint.Style.STROKE
         paint.strokeWidth = 7f
         paint.color = Color.MAGENTA
         floorSink.drawRoundRect(RectF(13f, 13f, width - 13f, height - 13f), 30f, 30f, paint)
@@ -75,6 +91,15 @@ class ViewportOrchestrator {
         paint.strokeWidth = 5f
         paint.color = Color.RED
         rooofSink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
+
+        /* tiles */
+        val gwT = GrayWallTileset()
+        gwT.load()
+        val tsP = TilesetPainter(gwT, floorSink)
+        placeTestTile(floorSink, tsP, 3, 3)
+
+        viewportSliver.floorTextureId = floorPopulator.asNewTexture()
+        viewportSliver.rooofTextureId = rooofPopulator.asNewTexture()
     }
 
     private fun generateTestSheetTexture(populator: DrawableToTexture) {
@@ -158,36 +183,30 @@ class ViewportOrchestrator {
     }
 
     fun destroyOffscreenFramebuffers() {
-        for (i in rooofSlivers.indices) {
-            rooofSlivers[i].releaseTexture()
-            floorSlivers[i].releaseTexture()
+        for (i in viewportSlivers.indices) {
+            viewportSlivers[i].releaseTextures()
         }
 
         spriteSheet.destroyOffscreenFramebuffer()
     }
 
-    fun getFloorSliver(sliverX: Int, sliverY: Int): ViewportSliver {
-        return floorSlivers[sliverY * 3 + sliverX]
-    }
-
-    private fun getRooofSliver(sliverX: Int, sliverY: Int): ViewportSliver {
-        return rooofSlivers[sliverY * 3 + sliverX]
+    fun getViewportSliver(sliverX: Int, sliverY: Int): ViewportSliver {
+        return viewportSlivers[sliverY * 3 + sliverX]
     }
 
     fun assignSliverPositionsAndTextures(floorToRender: Array<Sprite2d>, rooofToRender: Array<Sprite2d>) {
-        floorToRender[0].setTexture(floorSlivers[0].textureId)
+        floorToRender[0].setTexture(viewportSlivers[0].floorTextureId)
         floorToRender[1].setTexture(0)
         floorToRender[2].setTexture(0)
         floorToRender[3].setTexture(0)
 
-        rooofToRender[0].setTexture(rooofSlivers[0].textureId)
+        rooofToRender[0].setTexture(viewportSlivers[0].rooofTextureId)
         rooofToRender[1].setTexture(0)
         rooofToRender[2].setTexture(0)
         rooofToRender[3].setTexture(0)
 
-        floorToRender[0].setPosition(0f, 0f)
+        floorToRender[0].setPosition(width.toFloat()/2, height.toFloat()/2)
         rooofToRender[0].setPosition(width.toFloat()/2, height.toFloat()/2)
-
     }
 
     companion object {

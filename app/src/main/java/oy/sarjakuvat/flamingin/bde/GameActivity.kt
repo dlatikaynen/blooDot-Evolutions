@@ -29,8 +29,8 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         Log.d(TAG, "GameActivity::onCreate")
         requestedOrientation= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val metrics: DisplayMetrics = App.context.get()!!.resources.displayMetrics
-        fullScreenHeight = metrics.widthPixels / 2
-        fullScreenWidth = metrics.heightPixels / 2
+        fullScreenHeight = metrics.widthPixels / 4
+        fullScreenWidth = metrics.heightPixels / 4
         screenDimensions = Array(SURFACE_DIM.size) { IntArray(2) }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)

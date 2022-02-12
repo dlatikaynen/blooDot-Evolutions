@@ -5,18 +5,26 @@ import oy.sarjakuvat.flamingin.bde.gles.GlUtil
 import java.lang.IllegalStateException
 
 class ViewportSliver {
-    var textureId = 0
+    var floorTextureId = 0
+    var rooofTextureId = 0
 
-    fun releaseTexture() {
-        if(textureId == 0)
+    fun releaseTextures() {
+        if(floorTextureId == 0)
         {
-            throw IllegalStateException("Attempt to release ${ViewportSliver::class.simpleName}::textureId when it was already zero")
+            throw IllegalStateException("Attempt to release ${ViewportSliver::class.simpleName}::floorTextureId when it was already zero")
         }
 
-        val values = IntArray(1)
-        values[0] = textureId
-        GLES20.glDeleteTextures(1, values, 0)
+        if(rooofTextureId == 0)
+        {
+            throw IllegalStateException("Attempt to release ${ViewportSliver::class.simpleName}::rooofTextureId when it was already zero")
+        }
+
+        val values = IntArray(2)
+        values[0] = rooofTextureId
+        values[1] = floorTextureId
+        GLES20.glDeleteTextures(values.size, values, 0)
         GlUtil.checkGlError("${ViewportSliver::class.simpleName}::glDeleteTextures")
-        textureId = 0
+        rooofTextureId = 0
+        floorTextureId = 0
     }
 }
