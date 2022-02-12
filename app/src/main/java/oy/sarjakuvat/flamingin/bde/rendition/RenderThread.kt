@@ -1,7 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.opengl.GLES20
-import android.opengl.GLES30
 import android.opengl.Matrix
 import android.os.Looper
 import android.util.Log
@@ -18,6 +17,8 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
     private val viewportOrchestrator: ViewportOrchestrator = ViewportOrchestrator()
     private val spriteTriangle: Sprite2d
     private val spriteRectangle: Sprite2d
+    private val floorSliver: Sprite2d
+    private val rooofSliver: Sprite2d
     private val screenFrame: Array<Sprite2d?>
 
     private var isReady = false
@@ -26,6 +27,8 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
     private var shaderFlat: ShaderFlatProgram? = null
     private var shaderTexture: ShaderTextureProgram? = null
     private var textureIdPicture = 0
+    private var textureIdFloor = 0
+    private var textureIdRooof = 0
     private var textureIdCoarse = 0
     private var textureIdFine = 0
     private var useFlatShader = false
@@ -120,6 +123,16 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         rectangleVelocityX = 1 + smallDim / 2.0f
         rectangleVelocityY = 1 + smallDim / 2.5f
 
+        /* slivers */
+        floorSliver.setTexture(textureIdFloor)
+        floorSliver.setScale(width.toFloat(), height.toFloat())
+        floorSliver.setPosition(width.toFloat(), height.toFloat())
+
+        rooofSliver.setTexture(textureIdRooof)
+        rooofSliver.setScale(width.toFloat(), height.toFloat())
+        rooofSliver.setPosition(width.toFloat(), height.toFloat())
+
+
         /* edge lines */
         val edgeWidth = 1 + width / 64.0f
         screenFrame[0]!!.setColor(0.5f, 0.5f, 0.5f)
@@ -142,6 +155,8 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
 
         Log.d(GameActivity.TAG, "spriteTriangle: $spriteTriangle")
         Log.d(GameActivity.TAG, "spriteRectangle: $spriteRectangle")
+        Log.d(GameActivity.TAG, "floorSliver: $floorSliver")
+        Log.d(GameActivity.TAG, "rooofSliver: $rooofSliver")
         destroyOffscreenFramebuffers()
         prepareOffscreenFramebuffers(width, height)
         populateOffscreenFramebuffers()
@@ -156,7 +171,11 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
     }
 
     private fun populateOffscreenFramebuffers() {
-        viewportOrchestrator.populateOffscreenFramebuffers()
+        val textureIds = viewportOrchestrator.populateOffscreenFramebuffers()
+        textureIdFloor = textureIds[0]
+        floorSliver.setTexture(textureIdFloor)
+        textureIdRooof = textureIds[1]
+        rooofSliver.setTexture(textureIdRooof)
     }
 
     private fun destroyOffscreenFramebuffers() {
@@ -250,8 +269,8 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // blit from our offscreen render buffers
-        viewportOrchestrator.blitV8()
-        GLES20.glBindFramebuffer(GLES30.GL_READ_FRAMEBUFFER, 0)
+        //viewportOrchestrator.blitV8()
+        //GLES20.glBindFramebuffer(GLES30.GL_READ_FRAMEBUFFER, 0)
 
         // textures may include alpha, turn blending on
         GLES20.glEnable(GLES20.GL_BLEND)
@@ -260,8 +279,10 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
             spriteTriangle.draw(shaderFlat!!, displayProjectionMatrix)
             spriteRectangle.draw(shaderFlat!!, displayProjectionMatrix)
         } else {
+            floorSliver.draw(shaderTexture!!, displayProjectionMatrix)
             spriteTriangle.draw(shaderTexture!!, displayProjectionMatrix)
             spriteRectangle.draw(shaderTexture!!, displayProjectionMatrix)
+            rooofSliver.draw(shaderTexture!!, displayProjectionMatrix)
         }
 
         GLES20.glDisable(GLES20.GL_BLEND)
@@ -277,11 +298,13 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         Matrix.setIdentityM(mIdentityMatrix, 0)
         val mTriDrawable = Drawable2dBase(Drawable2dBase.ShapePrimitive.IsocelesTriangle)
         spriteTriangle = Sprite2d(mTriDrawable)
-        val mRectDrawable = Drawable2dBase(Drawable2dBase.ShapePrimitive.CenteredUnitRect)
-        spriteRectangle = Sprite2d(mRectDrawable)
+        val rectDrawable = Drawable2dBase(Drawable2dBase.ShapePrimitive.CenteredUnitRect)
+        spriteRectangle = Sprite2d(rectDrawable)
+        floorSliver = Sprite2d(rectDrawable)
+        rooofSliver = Sprite2d(rectDrawable)
         screenFrame = arrayOfNulls(4)
         for (i in screenFrame.indices) {
-            screenFrame[i] = Sprite2d(mRectDrawable)
+            screenFrame[i] = Sprite2d(rectDrawable)
         }
     }
 }

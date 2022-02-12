@@ -42,28 +42,40 @@ class ViewportOrchestrator {
         }
     }
 
-    fun populateOffscreenFramebuffers() {
+    fun populateOffscreenFramebuffers() : Array<Int> {
+        var floorTextureId: Int = 0
+        var rooofTextureId: Int = 0
         /* we want a populated sprite sheet first */
         val populator = DrawableToTexture(width, height)
-        var textureName: Int
-//        generateTestSheetTexture(populator)
-//        var textureName = populator.asNewTexture()
-//        spriteSheet.populate(textureName)
-//        populator.deleteTextureAfterUse(textureName)
+        generateTestSheetTexture(populator)
+        var textureName = populator.asNewTexture()
+        spriteSheet.populate(textureName)
+        populator.deleteTextureAfterUse(textureName)
         val rooofPopulator = DrawableToTexture(width, height)
         for (i in floorSlivers.indices) {
             populateSheet(populator, rooofPopulator)
             textureName = populator.asNewTexture()
-            floorSlivers[i].populate(textureName)
-            populator.deleteTextureAfterUse(textureName)
+            //floorSlivers[i].populate(textureName)
+            if(i==0) {
+                floorTextureId = textureName
+            } else {
+                populator.deleteTextureAfterUse(textureName)
+            }
 
             val rooofTextureName = rooofPopulator.asNewTexture()
-            rooofSlivers[i].populate(rooofTextureName)
-            rooofPopulator.deleteTextureAfterUse(rooofTextureName)
+            //rooofSlivers[i].populate(rooofTextureName)
+            if(i==0) {
+                rooofTextureId = rooofTextureName
+            }
+            else {
+                rooofPopulator.deleteTextureAfterUse(rooofTextureName)
+            }
         }
 
         rooofPopulator.deleteBitmapAfterUse()
         populator.deleteBitmapAfterUse()
+
+        return arrayOf(floorTextureId, rooofTextureId)
     }
 
     private fun populateSheet(floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
@@ -237,16 +249,16 @@ class ViewportOrchestrator {
 //            region[TopRightDstBottom]
 //        )
 
-        bottomRightR.blit(
-            region[BottomRightSrcLeft],
-            region[BottomRightSrcTop],
-            region[BottomRightSrcRight],
-            region[BottomRightSrcBottom],
-            region[BottomRightDstLeft],
-            region[BottomRightDstTop],
-            region[BottomRightDstRight],
-            region[BottomRightDstBottom]
-        )
+//        bottomRightR.blit(
+//            region[BottomRightSrcLeft],
+//            region[BottomRightSrcTop],
+//            region[BottomRightSrcRight],
+//            region[BottomRightSrcBottom],
+//            region[BottomRightDstLeft],
+//            region[BottomRightDstTop],
+//            region[BottomRightDstRight],
+//            region[BottomRightDstBottom]
+//        )
 
         // old test code remove as soon as definitely obsolete
         /* CONFIRMED top left, visible in the bottom right corner is the THREE */
