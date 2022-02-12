@@ -33,6 +33,11 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
 
     private var rectangleVelocityX = 0f
     private var rectangleVelocityY = 0f
+
+    private var localScrollOffsetX = 120f
+    private var localScrollOffsetY = 120f
+    private var localScrollVelocity = 3.5f
+
     private var screenInnerLeft = 0f
     private var screenInnerTop = 0f
     private var screenInnerRight = 0f
@@ -171,6 +176,10 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         viewportOrchestrator.assignSliverPositionsAndTextures(floorSlivers, rooofSlivers)
     }
 
+    private fun moveViewportSlivers() {
+        viewportOrchestrator.assignSliverPositions(floorSlivers, rooofSlivers, localScrollOffsetX, localScrollOffsetY)
+    }
+
     private fun destroyOffscreenFramebuffers() {
         /* only attempt deallocating if middle one indicates prior allocation */
         if(viewportOrchestrator.getViewportSliver(1,1).floorTextureId != 0) {
@@ -257,6 +266,31 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         }
 
         spriteRectangle.setPosition(xpos, ypos)
+
+        if(localScrollVelocity > 0) {
+            localScrollOffsetX += localScrollVelocity
+            if(localScrollOffsetX >= 120f) {
+                localScrollOffsetX = 120f
+                localScrollOffsetY = 120f
+                localScrollVelocity = -localScrollVelocity
+            }
+            else {
+                localScrollOffsetY += localScrollVelocity
+            }
+        }
+        else {
+            localScrollOffsetX += localScrollVelocity
+            if(localScrollOffsetX <= -120f) {
+                localScrollOffsetX = -120f
+                localScrollOffsetY = -120f
+                localScrollVelocity = -localScrollVelocity
+            }
+            else {
+                localScrollOffsetY += localScrollVelocity
+            }
+        }
+
+        moveViewportSlivers()
     }
 
     private fun draw() {

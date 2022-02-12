@@ -22,6 +22,9 @@ abstract class TilePainterBase {
 
     abstract fun tileNumberToBaseSheetPosition(tileNumber: Int) : Point
 
+    /// Stride is not meaningful as an absolute value,
+    /// as modulo will be used. Pass absolute arena indices
+    /// for repeatable visualization
     fun tileNumberToSheetCoordinates(tileNumber: Int, strideX: Int = 0, strideY: Int = 0): Point {
         val tilePartitionSize = tilePartitionSizeOnSheet(tileNumber)
         val basePosOnSheet = tileNumberToBaseSheetPosition(tileNumber)

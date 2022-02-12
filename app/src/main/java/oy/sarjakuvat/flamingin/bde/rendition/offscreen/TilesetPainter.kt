@@ -9,13 +9,13 @@ import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion
 import kotlin.math.PI
 
 class TilesetPainter(private val basePainter: BlobPainterBase, private val paintTo: Canvas) {
-    fun paintTile(xPos: Float, yPos: Float, tileNumber: Int, monominoIndex: Int = MonominoLookup.primeIndexShy) {
+    fun paintTile(xPos: Float, yPos: Float, tileNumber: Int, monominoIndex: Int = MonominoLookup.primeIndexShy, strideX: Int = 0, strideY: Int = 0) {
         when(tileNumber) {
             TileCatalog.Tiles.classicWall -> {
                 paintBlobTile(xPos, yPos, monominoIndex)
             }
             else -> {
-                val tileSource = basePainter.tileNumberToSheetCoordinates(tileNumber, 15, 15)
+                val tileSource = basePainter.tileNumberToSheetCoordinates(tileNumber, strideX, strideY)
                 paintStaticTile(xPos, yPos, tileSource.x, tileSource.y)
             }
         }

@@ -1,6 +1,7 @@
 package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.graphics.*
+import oy.sarjakuvat.flamingin.bde.BuildConfig
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
 import oy.sarjakuvat.flamingin.bde.gles.Sprite2d
@@ -45,14 +46,15 @@ class ViewportOrchestrator {
         populator.deleteTextureAfterUse(textureName)
         val rooofPopulator = DrawableToTexture(width, height)
         for (i in viewportSlivers.indices) {
-            populateSheet(viewportSlivers[i], populator, rooofPopulator)
+            populateSheet(i, populator, rooofPopulator)
         }
 
         rooofPopulator.deleteBitmapAfterUse()
         populator.deleteBitmapAfterUse()
     }
 
-    private fun populateSheet(viewportSliver: ViewportSliver, floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+    private fun populateSheet(sliverIndex: Int, floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+        val viewportSliver = viewportSlivers[sliverIndex]
         val floorSink = floorPopulator.sink
         val rooofSink = rooofPopulator.sink
         floorPopulator.clearBitmapBeforeUse()
@@ -69,6 +71,20 @@ class ViewportOrchestrator {
         val arenaGridIndexTop = Arena.midpointY - numTilesY / 2
 
         viewportSliver.populate(width, height, numTilesX, numTilesY, gridLeftXpx, gridTopYpx, arenaGridIndexLeft, arenaGridIndexTop, floorSink, rooofSink)
+        if(BuildConfig.DEBUG) {
+            val paint = Paint()
+            paint.textSize = 67f
+            paint.textAlign = Paint.Align.CENTER
+            val textMetrics = Rect()
+            paint.getTextBounds(sliverIndex.toString(), 0, sliverIndex.toString().length, textMetrics)
+            paint.style = Paint.Style.FILL
+            paint.color = Color.argb(0.25f,0f,0.3f,0.9f)
+            rooofSink.drawText(sliverIndex.toString(), width / 2f, height / 2f + textMetrics.height() / 2f, paint)
+            paint.style = Paint.Style.STROKE
+            paint.color = Color.CYAN
+            rooofSink.drawText(sliverIndex.toString(), width / 2f, height / 2f + textMetrics.height() / 2f, paint)
+        }
+
         viewportSliver.floorTextureId = floorPopulator.asNewTexture()
         viewportSliver.rooofTextureId = rooofPopulator.asNewTexture()
     }
@@ -125,27 +141,6 @@ class ViewportOrchestrator {
         tsP.paintTile((x * tileSize).toFloat(), (y * tileSize).toFloat(), TileCatalog.Tiles.classicWall, MonominoLookup.primeIndexShy)
     }
 
-    private fun getSliverRegion(): Array<Int> {
-        return arrayOf(
-            /* CONFIRMED BOTTOM LEFT */
-            width-midpointOffsetX,height-midpointOffsetY,width, height,
-            /* bottom left destination */
-            0,0,midpointOffsetX,midpointOffsetY,
-            /* CONFIRMED BOTTOM RIGHT */
-            0,height-midpointOffsetY,width-midpointOffsetX,height,
-            /* bottom right destination */
-            midpointOffsetX,0,width,midpointOffsetY,
-            /* CONFIRMED TOP LEFT */
-            width-midpointOffsetX,0,width,height-midpointOffsetY,
-            /* top left destination */
-            0,midpointOffsetY,midpointOffsetX,height,
-            /* CONFIRMED TOP RIGHT */
-            0,0,width-midpointOffsetX,height-midpointOffsetY,
-            /* top right destination */
-            midpointOffsetX,midpointOffsetY,width,height
-        )
-    }
-
     fun destroyOffscreenFramebuffers() {
         for (i in viewportSlivers.indices) {
             viewportSlivers[i].releaseTextures()
@@ -160,54 +155,33 @@ class ViewportOrchestrator {
 
     fun assignSliverPositionsAndTextures(floorToRender: Array<Sprite2d>, rooofToRender: Array<Sprite2d>) {
         floorToRender[0].setTexture(viewportSlivers[0].floorTextureId)
-        floorToRender[1].setTexture(0)
-        floorToRender[2].setTexture(0)
-        floorToRender[3].setTexture(0)
+        floorToRender[1].setTexture(viewportSlivers[1].floorTextureId)
+        floorToRender[2].setTexture(viewportSlivers[2].floorTextureId)
+        floorToRender[3].setTexture(viewportSlivers[3].floorTextureId)
 
         rooofToRender[0].setTexture(viewportSlivers[0].rooofTextureId)
-        rooofToRender[1].setTexture(0)
-        rooofToRender[2].setTexture(0)
-        rooofToRender[3].setTexture(0)
+        rooofToRender[1].setTexture(viewportSlivers[1].rooofTextureId)
+        rooofToRender[2].setTexture(viewportSlivers[2].rooofTextureId)
+        rooofToRender[3].setTexture(viewportSlivers[3].rooofTextureId)
 
-        floorToRender[0].setPosition(width.toFloat()/2, height.toFloat()/2)
-        rooofToRender[0].setPosition(width.toFloat()/2, height.toFloat()/2)
+        assignSliverPositions(floorToRender, rooofToRender, 0f, 0f)
     }
 
-    companion object {
-        private const val BottomLeftSrcLeft = 0
-        private const val BottomLeftSrcTop = 1
-        private const val BottomLeftSrcRight = 2
-        private const val BottomLeftSrcBottom = 3
-        private const val BottomLeftDstLeft = 4
-        private const val BottomLeftDstTop = 5
-        private const val BottomLeftDstRight = 6
-        private const val BottomLeftDstBottom = 7
+    fun assignSliverPositions(floorToRender: Array<Sprite2d>, rooofToRender: Array<Sprite2d>, localScrollOffsetX: Float, localScrollOffsetY: Float) {
+        /* top left */
+        floorToRender[0].setPosition(localScrollOffsetX, height.toFloat() - localScrollOffsetY)
+        rooofToRender[0].setPosition(localScrollOffsetX, height.toFloat() - localScrollOffsetY)
 
-        private const val BottomRightSrcLeft = 8
-        private const val BottomRightSrcTop = 9
-        private const val BottomRightSrcRight = 10
-        private const val BottomRightSrcBottom = 11
-        private const val BottomRightDstLeft = 12
-        private const val BottomRightDstTop = 13
-        private const val BottomRightDstRight = 14
-        private const val BottomRightDstBottom = 15
+        /* top right */
+        floorToRender[1].setPosition(localScrollOffsetX + width.toFloat(), height.toFloat() - localScrollOffsetX)
+        rooofToRender[1].setPosition(localScrollOffsetX + width.toFloat(), height.toFloat() - localScrollOffsetX)
 
-        private const val TopLeftSrcLeft = 16
-        private const val TopLeftSrcTop = 17
-        private const val TopLeftSrcRight = 18
-        private const val TopLeftSrcBottom = 19
-        private const val TopLeftDstLeft = 20
-        private const val TopLeftDstTop = 21
-        private const val TopLeftDstRight = 22
-        private const val TopLeftDstBottom = 23
+        /* bottom left */
+        floorToRender[2].setPosition(localScrollOffsetX, -localScrollOffsetX)
+        rooofToRender[2].setPosition(localScrollOffsetX, -localScrollOffsetX)
 
-        private const val TopRightSrcLeft = 24
-        private const val TopRightSrcTop = 25
-        private const val TopRightSrcRight = 26
-        private const val TopRightSrcBottom = 27
-        private const val TopRightDstLeft = 28
-        private const val TopRightDstTop = 29
-        private const val TopRightDstRight = 30
-        private const val TopRightDstBottom = 31
+        /* bottom right */
+        floorToRender[3].setPosition(localScrollOffsetX + width.toFloat(), -localScrollOffsetX)
+        rooofToRender[3].setPosition(localScrollOffsetX + width.toFloat(), -localScrollOffsetY)
     }
 }

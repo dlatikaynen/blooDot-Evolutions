@@ -116,31 +116,25 @@ object Arena {
     }
 
     private fun generateOverworld() {
-        placeTile(
-            midpointX,
-            midpointY,
-            TileCatalog.Tiles.none,
-            TileCatalog.Tiles.classicWall,
-            MonominoLookup.primeIndexShy
-        )
-
-        placeTile(
-            midpointX + 1,
-            midpointY + 1,
-            TileCatalog.Tiles.classicWall,
-            TileCatalog.Tiles.none,
-            MonominoLookup.primeIndexShy
-        )
-
-        placeTile(
-            midpointX - 3,
-            midpointY,
-            TileCatalog.Tiles.classicWall,
-            TileCatalog.Tiles.none,
-            MonominoLookup.primeIndexShy
-        )
+        placeTile(midpointX, midpointY, TileCatalog.Tiles.none, TileCatalog.Tiles.classicWall, MonominoLookup.primeIndexShy)
+        placeTile(midpointX + 1,midpointY + 1,TileCatalog.Tiles.classicWall,TileCatalog.Tiles.none,MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 3, midpointY, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 4, midpointY, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 4, midpointY + 1, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 4, midpointY + 2, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 4, midpointY + 3, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 3, midpointY + 3, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 2, midpointY + 3, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 1, midpointY + 3, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 1, midpointY + 2, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 1, midpointY + 1, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 1, midpointY, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
+        placeTile(midpointX - 2, midpointY, TileCatalog.Tiles.classicWall, TileCatalog.Tiles.none, MonominoLookup.primeIndexShy)
 
         placeTile(midpointX - 3, midpointY + 1, TileCatalog.Tiles.marbleFloor, TileCatalog.Tiles.none)
+        placeTile(midpointX - 3, midpointY + 2, TileCatalog.Tiles.marbleFloor, TileCatalog.Tiles.none)
+        placeTile(midpointX - 2, midpointY + 1, TileCatalog.Tiles.marbleFloor, TileCatalog.Tiles.none)
+        placeTile(midpointX - 2, midpointY + 2, TileCatalog.Tiles.marbleFloor, TileCatalog.Tiles.none)
     }
 
     private fun applySaveFileDelta(fromFile: String) {
