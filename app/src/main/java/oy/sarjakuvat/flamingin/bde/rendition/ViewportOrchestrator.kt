@@ -4,6 +4,7 @@ import android.graphics.*
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
 import oy.sarjakuvat.flamingin.bde.gles.Sprite2d
+import oy.sarjakuvat.flamingin.bde.level.Arena
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
 import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
@@ -52,52 +53,22 @@ class ViewportOrchestrator {
     }
 
     private fun populateSheet(viewportSliver: ViewportSliver, floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
-        val paint = Paint()
-        paint.style = Paint.Style.STROKE
         val floorSink = floorPopulator.sink
         val rooofSink = rooofPopulator.sink
         floorPopulator.clearBitmapBeforeUse()
         rooofPopulator.clearBitmapBeforeUse()
 
-        /* debug grid */
+        /* compute the world/viewport coordinate complex */
         var numTilesX = ceil(width / tileSize.toFloat()).toInt()
         var gridWidth = numTilesX * tileSize
-        var gridLeft = midpointOffsetX - gridWidth / 2f
-        for(x in 0 until numTilesX) {
-            var xPos = gridLeft + x * tileSize
-            floorSink.drawLine(xPos, 0f, xPos, height.toFloat(), paint)
-        }
-
+        var gridLeftXpx = midpointOffsetX - gridWidth / 2f
         var numTilesY = ceil(height / tileSize.toFloat()).toInt()
         var gridHeight = numTilesY * tileSize
-        var gridTop = midpointOffsetY - gridHeight / 2f
-        for(y in 0 until numTilesY) {
-            var yPos = gridTop + y * tileSize
-            floorSink.drawLine(0f, yPos, width.toFloat(), yPos, paint)
-        }
+        var gridTopYpx = midpointOffsetY - gridHeight / 2f
+        val arenaGridIndexLeft = Arena.midpointX - numTilesX / 2
+        val arenaGridIndexTop = Arena.midpointY - numTilesY / 2
 
-        floorSink.drawColor(Color.argb(0.2f, 0.75f,0.75f,0.7f))
-        rooofSink.drawColor(Color.argb(0.2f,1f,0f,0f))
-
-        paint.strokeWidth = 7f
-        paint.color = Color.MAGENTA
-        floorSink.drawRoundRect(RectF(13f, 13f, width - 13f, height - 13f), 30f, 30f, paint)
-
-        paint.color = Color.argb(0.5f,0f,1f,0f)
-        paint.style = Paint.Style.FILL
-        floorSink.drawRect(80f,height-120f,120f,height - 80f, paint)
-        paint.style = Paint.Style.STROKE
-
-        paint.strokeWidth = 5f
-        paint.color = Color.RED
-        rooofSink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
-
-        /* tiles */
-        val gwT = GrayWallTileset()
-        gwT.load()
-        val tsP = TilesetPainter(gwT, floorSink)
-        placeTestTile(floorSink, tsP, 3, 3)
-
+        viewportSliver.populate(width, height, numTilesX, numTilesY, gridLeftXpx, gridTopYpx, arenaGridIndexLeft, arenaGridIndexTop, floorSink, rooofSink)
         viewportSliver.floorTextureId = floorPopulator.asNewTexture()
         viewportSliver.rooofTextureId = rooofPopulator.asNewTexture()
     }

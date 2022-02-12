@@ -1,6 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.level
 
-data class Entity(private val tileIndex: Int, var isGridlocked: Boolean = true) {
+data class Entity(val tileIndex: Int, var isGridlocked: Boolean = true) {
     var positionX: Float = 0.0f
     var positionY: Float = 0.0f
 
