@@ -7,9 +7,10 @@ import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion
 import kotlin.math.PI
 
 class TilesetPainter(private val basePainter: BlobPainterBase, private val paintTo: Canvas) {
-    fun paintBlobTile(tileIndex: Int) {
+    fun paintBlobTile(xPos: Float, yPos: Float, tileIndex: Int) {
         val paintInstructions = MonominoIndex.primeTileFrom(tileIndex)
         paintTo.save()
+        paintTo.translate(xPos, yPos)
         paintTo.clipRect(clipRect)
         rotate(paintInstructions.numRotations)
         basePainter.paintBlobTile(paintTo, paintInstructions.primeIndex)

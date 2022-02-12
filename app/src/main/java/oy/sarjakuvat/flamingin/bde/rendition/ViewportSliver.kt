@@ -5,15 +5,12 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.opengl.GLES20
-import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.GlUtil
 import oy.sarjakuvat.flamingin.bde.level.Arena
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
-import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
 import java.lang.IllegalStateException
-import kotlin.math.ceil
 
 class ViewportSliver {
     var floorTextureId = 0
@@ -45,12 +42,12 @@ class ViewportSliver {
 
         /* debug grid */
         for(x in 0 until numTilesX) {
-            var xPos = gridLeftXpx + x * TilePainterBase.tileSize
+            val xPos = gridLeftXpx + x * tileSize
             floorSink.drawLine(xPos, 0f, xPos, height.toFloat(), paint)
         }
 
         for(y in 0 until numTilesY) {
-            var yPos = gridTopYpx + y * TilePainterBase.tileSize
+            val yPos = gridTopYpx + y * tileSize
             floorSink.drawLine(0f, yPos, width.toFloat(), yPos, paint)
         }
 
@@ -81,17 +78,10 @@ class ViewportSliver {
                     val xPos = gridLeftXpx + x * tileSize
                     val yPos = gridTopYpx + y * tileSize
                     for (entity in cell.contents) {
-                        placeTile(floorSink, tsP, entity.tileIndex, xPos, yPos)
+                        tsP.paintBlobTile(xPos, yPos, entity.tileIndex)
                     }
                 }
             }
         }
-    }
-
-    private fun placeTile(sink: Canvas, tsP: TilesetPainter, tileIndex: Int, x: Float, y: Float) {
-        sink.save()
-        sink.translate(x, y)
-        tsP.paintBlobTile(tileIndex)
-        sink.restore()
     }
 }

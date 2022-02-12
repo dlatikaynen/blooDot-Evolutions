@@ -86,28 +86,28 @@ class ViewportOrchestrator {
         val bottomTile = height/ tileSize - 2
 
         for (x in 2..rightTile) {
-            placeTestTile(sink, tsP, x, 2)
-            placeTestTile(sink, tsP, x, bottomTile)
+            placeTestTile(tsP, x, 2)
+            placeTestTile(tsP, x, bottomTile)
         }
 
         for (y in 2..bottomTile) {
-            placeTestTile(sink, tsP, 2, y)
-            placeTestTile(sink, tsP, rightTile, y)
+            placeTestTile(tsP, 2, y)
+            placeTestTile(tsP, rightTile, y)
         }
 
-        placeTestTile(sink, tsP, 3, 3)
+        placeTestTile(tsP, 3, 3)
 
-        placeTestTile(sink, tsP, rightTile-1, 3)
-        placeTestTile(sink, tsP, rightTile-2, 4)
+        placeTestTile(tsP, rightTile-1, 3)
+        placeTestTile(tsP, rightTile-2, 4)
 
-        placeTestTile(sink, tsP, rightTile-1, bottomTile-1)
-        placeTestTile(sink, tsP, rightTile-2, bottomTile-2)
-        placeTestTile(sink, tsP, rightTile-3, bottomTile-3)
+        placeTestTile(tsP, rightTile-1, bottomTile-1)
+        placeTestTile(tsP, rightTile-2, bottomTile-2)
+        placeTestTile(tsP, rightTile-3, bottomTile-3)
 
-        placeTestTile(sink, tsP, 3, bottomTile-1)
-        placeTestTile(sink, tsP, 4, bottomTile-2)
-        placeTestTile(sink, tsP, 5, bottomTile-3)
-        placeTestTile(sink, tsP, 6, bottomTile-4)
+        placeTestTile(tsP, 3, bottomTile-1)
+        placeTestTile(tsP, 4, bottomTile-2)
+        placeTestTile(tsP, 5, bottomTile-3)
+        placeTestTile(tsP, 6, bottomTile-4)
 
         sink.save()
         sink.translate(15f * tileSize, 15f * tileSize)
@@ -125,11 +125,8 @@ class ViewportOrchestrator {
         sink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
     }
 
-    private fun placeTestTile(sink: Canvas, tsP: TilesetPainter, x: Int, y: Int) {
-        sink.save()
-        sink.translate(x.toFloat() * tileSize, y.toFloat() * tileSize)
-        tsP.paintBlobTile(MonominoLookup.primeIndexShy)
-        sink.restore()
+    private fun placeTestTile(tsP: TilesetPainter, x: Int, y: Int) {
+        tsP.paintBlobTile((x * tileSize).toFloat(), (y * tileSize).toFloat(), MonominoLookup.primeIndexShy)
     }
 
     private fun getSliverRegion(): Array<Int> {
