@@ -70,7 +70,8 @@ class ViewportSliver {
         /* tiles */
         val gwT = GrayWallTileset()
         gwT.load()
-        val tsP = TilesetPainter(gwT, floorSink)
+        val tsPF = TilesetPainter(gwT, floorSink)
+        val tsPR = TilesetPainter(gwT, rooofSink)
         for(x in 0 until numTilesX) {
             for(y in 0 until numTilesY) {
                 val cell = Arena.cells[arenaGridIndexLeft + x][arenaGridIndexTop + y]
@@ -78,7 +79,13 @@ class ViewportSliver {
                     val xPos = gridLeftXpx + x * tileSize
                     val yPos = gridTopYpx + y * tileSize
                     for (entity in cell.contents) {
-                        tsP.paintBlobTile(xPos, yPos, entity.tileIndex)
+                        if(entity.tileNumberFloor > 0) {
+                            tsPF.paintTile(xPos, yPos, entity.tileNumberFloor, entity.monominoIndex)
+                        }
+
+                        if(entity.tileNumberRooof > 0) {
+                            tsPR.paintTile(xPos, yPos, entity.tileNumberRooof)
+                        }
                     }
                 }
             }

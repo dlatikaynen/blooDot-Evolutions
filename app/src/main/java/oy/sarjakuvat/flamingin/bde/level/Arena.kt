@@ -93,9 +93,9 @@ object Arena {
         }
     }
 
-    private fun placeTile(gridX: Int, gridY: Int, tileIndex: Int, primeMonomino: Int = MonominoLookup.coalesceWithNeighbors) {
+    private fun placeTile(gridX: Int, gridY: Int, tileNumberFloor: Int, tileNumberRooof: Int, primeMonomino: Int = MonominoLookup.coalesceWithNeighbors) {
         val cell = ensureCell(gridX, gridY)
-        val candidateEntity = Entity(tileIndex)
+        val candidateEntity = Entity(tileNumberFloor, tileNumberRooof, true, primeMonomino)
         val entity = shadowClones.putIfAbsent(candidateEntity, candidateEntity) ?: candidateEntity
         cell.contents.add(entity)
     }
@@ -116,9 +116,31 @@ object Arena {
     }
 
     private fun generateOverworld() {
-        placeTile(midpointX, midpointY, TileCatalog.FloorTiles.marbleFloor, MonominoLookup.primeIndexShy)
-        placeTile(midpointX + 1, midpointY + 1, TileCatalog.FloorTiles.marbleFloor, MonominoLookup.primeIndexShy)
-        placeTile(midpointX - 3, midpointY, TileCatalog.FloorTiles.marbleFloor, MonominoLookup.primeIndexShy)
+        placeTile(
+            midpointX,
+            midpointY,
+            TileCatalog.Tiles.none,
+            TileCatalog.Tiles.classicWall,
+            MonominoLookup.primeIndexShy
+        )
+
+        placeTile(
+            midpointX + 1,
+            midpointY + 1,
+            TileCatalog.Tiles.classicWall,
+            TileCatalog.Tiles.none,
+            MonominoLookup.primeIndexShy
+        )
+
+        placeTile(
+            midpointX - 3,
+            midpointY,
+            TileCatalog.Tiles.classicWall,
+            TileCatalog.Tiles.none,
+            MonominoLookup.primeIndexShy
+        )
+
+        placeTile(midpointX - 3, midpointY + 1, TileCatalog.Tiles.marbleFloor, TileCatalog.Tiles.none)
     }
 
     private fun applySaveFileDelta(fromFile: String) {

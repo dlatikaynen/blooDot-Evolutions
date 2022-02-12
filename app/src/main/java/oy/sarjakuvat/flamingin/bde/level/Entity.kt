@@ -1,6 +1,13 @@
 package oy.sarjakuvat.flamingin.bde.level
 
-data class Entity(val tileIndex: Int, var isGridlocked: Boolean = true) {
+import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
+
+data class Entity(
+    val tileNumberFloor: Int,
+    val tileNumberRooof: Int,
+    var isGridlocked: Boolean = true,
+    var monominoIndex: Int = MonominoLookup.primeIndexShy
+) {
     var positionX: Float = 0.0f
     var positionY: Float = 0.0f
 
@@ -11,14 +18,18 @@ data class Entity(val tileIndex: Int, var isGridlocked: Boolean = true) {
         return this === other
                || (
                       (other is Entity)
-                      && other.tileIndex == tileIndex
+                      && other.tileNumberFloor == tileNumberFloor
+                      && other.tileNumberRooof == tileNumberRooof
                       && other.isGridlocked == isGridlocked
+                      && other.monominoIndex == monominoIndex
                   )
     }
 
     override fun hashCode(): Int {
-        var result = tileIndex
+        var result = tileNumberFloor
+        result = 31 * result + tileNumberRooof.hashCode()
         result = 31 * result + isGridlocked.hashCode()
+        result = 31 * result + monominoIndex.hashCode()
         return result
     }
 }

@@ -108,14 +108,14 @@ class GrayWallTileset : BlobPainterBase() {
 
     override fun tileNumberToBaseSheetPosition(tileNumber: Int): Point {
         return when(tileNumber) {
-            TileCatalog.FloorTiles.marbleFloor -> return Point(0, 0)
+            TileCatalog.Tiles.marbleFloor -> return Point(0, 0)
             else -> throw IllegalArgumentException("The number $tileNumber is not a valid value for  tileNumber in ${GrayWallTileset::class.simpleName}")
         }
     }
 
     override fun tilePartitionSizeOnSheet(tileNumber: Int) : Size {
         return when(tileNumber) {
-            TileCatalog.FloorTiles.marbleFloor -> Size(3, 3)
+            TileCatalog.Tiles.marbleFloor -> Size(3, 3)
             else -> super.tilePartitionSizeOnSheet(tileNumber)
         }
     }

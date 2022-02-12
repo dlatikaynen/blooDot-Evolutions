@@ -40,7 +40,7 @@ class ViewportOrchestrator {
         /* we want a populated sprite sheet first */
         val populator = DrawableToTexture(width, height)
         generateTestSheetTexture(populator)
-        var textureName = populator.asNewTexture()
+        val textureName = populator.asNewTexture()
         spriteSheet.populate(textureName)
         populator.deleteTextureAfterUse(textureName)
         val rooofPopulator = DrawableToTexture(width, height)
@@ -59,12 +59,12 @@ class ViewportOrchestrator {
         rooofPopulator.clearBitmapBeforeUse()
 
         /* compute the world/viewport coordinate complex */
-        var numTilesX = ceil(width / tileSize.toFloat()).toInt()
-        var gridWidth = numTilesX * tileSize
-        var gridLeftXpx = midpointOffsetX - gridWidth / 2f
-        var numTilesY = ceil(height / tileSize.toFloat()).toInt()
-        var gridHeight = numTilesY * tileSize
-        var gridTopYpx = midpointOffsetY - gridHeight / 2f
+        val numTilesX = ceil(width / tileSize.toFloat()).toInt()
+        val gridWidth = numTilesX * tileSize
+        val gridLeftXpx = midpointOffsetX - gridWidth / 2f
+        val numTilesY = ceil(height / tileSize.toFloat()).toInt()
+        val gridHeight = numTilesY * tileSize
+        val gridTopYpx = midpointOffsetY - gridHeight / 2f
         val arenaGridIndexLeft = Arena.midpointX - numTilesX / 2
         val arenaGridIndexTop = Arena.midpointY - numTilesY / 2
 
@@ -109,11 +109,7 @@ class ViewportOrchestrator {
         placeTestTile(tsP, 5, bottomTile-3)
         placeTestTile(tsP, 6, bottomTile-4)
 
-        sink.save()
-        sink.translate(15f * tileSize, 15f * tileSize)
-        val tileSource = gwT.tileNumberToSheetCoordinates(TileCatalog.FloorTiles.marbleFloor, 15, 15)
-        tsP.paintStaticTile(tileSource.x, tileSource.y)
-        sink.restore()
+        tsP.paintTile(15f * tileSize, 15f * tileSize, TileCatalog.Tiles.marbleFloor)
 
         val paint = Paint()
         paint.style = Paint.Style.STROKE
@@ -126,7 +122,7 @@ class ViewportOrchestrator {
     }
 
     private fun placeTestTile(tsP: TilesetPainter, x: Int, y: Int) {
-        tsP.paintBlobTile((x * tileSize).toFloat(), (y * tileSize).toFloat(), MonominoLookup.primeIndexShy)
+        tsP.paintTile((x * tileSize).toFloat(), (y * tileSize).toFloat(), TileCatalog.Tiles.classicWall, MonominoLookup.primeIndexShy)
     }
 
     private fun getSliverRegion(): Array<Int> {

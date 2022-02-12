@@ -38,7 +38,7 @@ abstract class TilePainterBase {
     }
 
     fun paintStaticTile(paintTo: Canvas, indexOnSpriteSheetX: Int, indexOnSpriteSheetY: Int) {
-        // the +1 are the gridlines
+        // the +1 are the gridlines on the static sprite bitmap
         val srcLeft = 1 + (tileSize + 1) * indexOnSpriteSheetX
         val srcTop = 1 + (tileSize + 1) * indexOnSpriteSheetY
         paintTo.drawBitmap(

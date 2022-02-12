@@ -3,12 +3,26 @@ package oy.sarjakuvat.flamingin.bde.rendition.offscreen
 import android.graphics.Canvas
 import android.graphics.Rect
 import oy.sarjakuvat.flamingin.bde.algo.MonominoIndex
+import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
+import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
 import kotlin.math.PI
 
 class TilesetPainter(private val basePainter: BlobPainterBase, private val paintTo: Canvas) {
-    fun paintBlobTile(xPos: Float, yPos: Float, tileIndex: Int) {
-        val paintInstructions = MonominoIndex.primeTileFrom(tileIndex)
+    fun paintTile(xPos: Float, yPos: Float, tileNumber: Int, monominoIndex: Int = MonominoLookup.primeIndexShy) {
+        when(tileNumber) {
+            TileCatalog.Tiles.classicWall -> {
+                paintBlobTile(xPos, yPos, monominoIndex)
+            }
+            else -> {
+                val tileSource = basePainter.tileNumberToSheetCoordinates(tileNumber, 15, 15)
+                paintStaticTile(xPos, yPos, tileSource.x, tileSource.y)
+            }
+        }
+    }
+
+    private fun paintBlobTile(xPos: Float, yPos: Float, monominoIndex: Int) {
+        val paintInstructions = MonominoIndex.primeTileFrom(monominoIndex)
         paintTo.save()
         paintTo.translate(xPos, yPos)
         paintTo.clipRect(clipRect)
@@ -17,8 +31,9 @@ class TilesetPainter(private val basePainter: BlobPainterBase, private val paint
         paintTo.restore()
     }
 
-    fun paintStaticTile(indexOnSpriteSheetX: Int, indexOnSpriteSheetY : Int, numRotations: Int = 0) {
+    private fun paintStaticTile(xPos: Float, yPos: Float, indexOnSpriteSheetX: Int, indexOnSpriteSheetY : Int, numRotations: Int = 0) {
         paintTo.save()
+        paintTo.translate(xPos, yPos)
         paintTo.clipRect(clipRect)
         rotate(numRotations)
         basePainter.paintStaticTile(paintTo, indexOnSpriteSheetX, indexOnSpriteSheetY)
