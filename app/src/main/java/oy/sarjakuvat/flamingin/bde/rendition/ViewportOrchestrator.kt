@@ -3,6 +3,7 @@ package oy.sarjakuvat.flamingin.bde.rendition
 import android.graphics.*
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
+import oy.sarjakuvat.flamingin.bde.gles.Sprite2d
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
 import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
@@ -10,8 +11,8 @@ import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
 
 class ViewportOrchestrator {
-    private val floorSlivers: Array<OffscreenFrame> = Array(9) { OffscreenFrame() }
-    private val rooofSlivers: Array<OffscreenFrame> = Array(9) { OffscreenFrame() }
+    private val floorSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
+    private val rooofSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
     private val spriteSheet: OffscreenFrame = OffscreenFrame()
     private var width: Int = 0
     private var height: Int = 0
@@ -24,10 +25,6 @@ class ViewportOrchestrator {
         textureProgram: ShaderTextureProgram
     ) {
         spriteSheet.initializeSharedGpuNames(pictureTextureName, textureProgram)
-        for (i in floorSlivers.indices) {
-            floorSlivers[i].initializeSharedGpuNames(pictureTextureName, textureProgram)
-            rooofSlivers[i].initializeSharedGpuNames(pictureTextureName, textureProgram)
-        }
     }
 
     fun prepareOffscreenFramebuffers(newWidth: Int, newHeight: Int, projectionMatrix: FloatArray) {
@@ -36,15 +33,9 @@ class ViewportOrchestrator {
         midpointOffsetX = newWidth / 2
         midpointOffsetY = newHeight / 2
         spriteSheet.prepareOffscreenFramebuffer(width, height, projectionMatrix)
-        for (i in floorSlivers.indices) {
-            floorSlivers[i].prepareOffscreenFramebuffer(width, height, projectionMatrix)
-            rooofSlivers[i].prepareOffscreenFramebuffer(width, height, projectionMatrix)
-        }
     }
 
-    fun populateOffscreenFramebuffers() : Array<Int> {
-        var floorTextureId: Int = 0
-        var rooofTextureId: Int = 0
+    fun populateOffscreenFramebuffers() {
         /* we want a populated sprite sheet first */
         val populator = DrawableToTexture(width, height)
         generateTestSheetTexture(populator)
@@ -54,28 +45,12 @@ class ViewportOrchestrator {
         val rooofPopulator = DrawableToTexture(width, height)
         for (i in floorSlivers.indices) {
             populateSheet(populator, rooofPopulator)
-            textureName = populator.asNewTexture()
-            //floorSlivers[i].populate(textureName)
-            if(i==0) {
-                floorTextureId = textureName
-            } else {
-                populator.deleteTextureAfterUse(textureName)
-            }
-
-            val rooofTextureName = rooofPopulator.asNewTexture()
-            //rooofSlivers[i].populate(rooofTextureName)
-            if(i==0) {
-                rooofTextureId = rooofTextureName
-            }
-            else {
-                rooofPopulator.deleteTextureAfterUse(rooofTextureName)
-            }
+            floorSlivers[i].textureId = populator.asNewTexture()
+            rooofSlivers[i].textureId = rooofPopulator.asNewTexture()
         }
 
         rooofPopulator.deleteBitmapAfterUse()
         populator.deleteBitmapAfterUse()
-
-        return arrayOf(floorTextureId, rooofTextureId)
     }
 
     private fun populateSheet(floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
@@ -83,14 +58,14 @@ class ViewportOrchestrator {
         val rooofSink = rooofPopulator.sink
         floorPopulator.clearBitmapBeforeUse()
         rooofPopulator.clearBitmapBeforeUse()
-        floorSink.drawColor(Color.argb(0.5f, 0.75f,0.75f,0.7f), PorterDuff.Mode.DST_IN)
-        rooofSink.drawColor(Color.argb(0.5f,1f,0f,0f), PorterDuff.Mode.DST_IN)
+        floorSink.drawColor(Color.argb(0.2f, 0.75f,0.75f,0.7f))
+        rooofSink.drawColor(Color.argb(0.2f,1f,0f,0f))
 
         val paint = Paint()
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 17f
+        paint.strokeWidth = 7f
         paint.color = Color.MAGENTA
-        floorSink.drawRoundRect(RectF(100f, 100f, width - 100f, height - 100f), 30f, 30f, paint)
+        floorSink.drawRoundRect(RectF(13f, 13f, width - 13f, height - 13f), 30f, 30f, paint)
 
         paint.color = Color.argb(0.5f,0f,1f,0f)
         paint.style = Paint.Style.FILL
@@ -146,9 +121,9 @@ class ViewportOrchestrator {
 
         val paint = Paint()
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 17f
+        paint.strokeWidth = 7f
         paint.color = Color.MAGENTA
-        sink.drawRoundRect(RectF(100f, 100f, width - 100f, height - 100f), 30f, 30f, paint)
+        sink.drawRoundRect(RectF(13f, 13f, width - 13f, height - 13f), 30f, 30f, paint)
         paint.strokeWidth = 5f
         paint.color = Color.YELLOW
         sink.drawRect(RectF(6f, 6f, width - 6f, height - 6f), paint)
@@ -159,131 +134,6 @@ class ViewportOrchestrator {
         sink.translate(x.toFloat() * tileSize, y.toFloat() * tileSize)
         tsP.paintBlobTile(MonominoLookup.primeIndexShy)
         sink.restore()
-    }
-
-    fun blitV8() {
-        val topLeftF = getFloorSliver(0, 0)
-        val topRightF = getFloorSliver(1, 0)
-        val bottomLeftF = getFloorSliver(0, 1)
-        val bottomRightF = getFloorSliver(1, 1)
-        val topLeftR = getRooofSliver(0, 0)
-        val topRightR = getRooofSliver(1, 0)
-        val bottomLeftR = getRooofSliver(0, 1)
-        val bottomRightR = getRooofSliver(1, 1)
-        val region = getSliverRegion()
-        topLeftF.blit(
-            region[TopLeftSrcLeft],
-            region[TopLeftSrcTop],
-            region[TopLeftSrcRight],
-            region[TopLeftSrcBottom],
-            region[TopLeftDstLeft],
-            region[TopLeftDstTop],
-            region[TopLeftDstRight],
-            region[TopLeftDstBottom]
-        )
-
-        topRightF.blit(
-            region[TopRightSrcLeft],
-            region[TopRightSrcTop],
-            region[TopRightSrcRight],
-            region[TopRightSrcBottom],
-            region[TopRightDstLeft],
-            region[TopRightDstTop],
-            region[TopRightDstRight],
-            region[TopRightDstBottom]
-        )
-
-        bottomLeftF.blit(
-            region[BottomLeftSrcLeft],
-            region[BottomLeftSrcTop],
-            region[BottomLeftSrcRight],
-            region[BottomLeftSrcBottom],
-            region[BottomLeftDstLeft],
-            region[BottomLeftDstTop],
-            region[BottomLeftDstRight],
-            region[BottomLeftDstBottom]
-        )
-
-        bottomRightF.blit(
-            region[BottomRightSrcLeft],
-            region[BottomRightSrcTop],
-            region[BottomRightSrcRight],
-            region[BottomRightSrcBottom],
-            region[BottomRightDstLeft],
-            region[BottomRightDstTop],
-            region[BottomRightDstRight],
-            region[BottomRightDstBottom]
-        )
-
-        /* cylinder head screw tightening pattern */
-        topLeftR.blit(
-            region[TopLeftSrcLeft],
-            region[TopLeftSrcTop],
-            region[TopLeftSrcRight],
-            region[TopLeftSrcBottom],
-            region[TopLeftDstLeft],
-            region[TopLeftDstTop],
-            region[TopLeftDstRight],
-            region[TopLeftDstBottom]
-        )
-
-        bottomLeftR.blit(
-            region[BottomLeftSrcLeft],
-            region[BottomLeftSrcTop],
-            region[BottomLeftSrcRight],
-            region[BottomLeftSrcBottom],
-            region[BottomLeftDstLeft],
-            region[BottomLeftDstTop],
-            region[BottomLeftDstRight],
-            region[BottomLeftDstBottom]
-        )
-
-//        topRightR.blit(
-//            region[TopRightSrcLeft],
-//            region[TopRightSrcTop],
-//            region[TopRightSrcRight],
-//            region[TopRightSrcBottom],
-//            region[TopRightDstLeft],
-//            region[TopRightDstTop],
-//            region[TopRightDstRight],
-//            region[TopRightDstBottom]
-//        )
-
-//        bottomRightR.blit(
-//            region[BottomRightSrcLeft],
-//            region[BottomRightSrcTop],
-//            region[BottomRightSrcRight],
-//            region[BottomRightSrcBottom],
-//            region[BottomRightDstLeft],
-//            region[BottomRightDstTop],
-//            region[BottomRightDstRight],
-//            region[BottomRightDstBottom]
-//        )
-
-        // old test code remove as soon as definitely obsolete
-        /* CONFIRMED top left, visible in the bottom right corner is the THREE */
-//        spriteSheet.blit(
-//            region[TopLeftSrcLeft], region [TopLeftSrcTop], region[TopLeftSrcRight], region[TopLeftSrcBottom],
-//            region[TopLeftDstLeft], region [TopLeftDstTop], region[TopLeftDstRight], region[TopLeftDstBottom]
-//        )
-
-        /* CONFIRMED top right, visible in the bottom left corner is the FOUR */
-//        spriteSheet.blit(
-//            region[TopRightSrcLeft], region[TopRightSrcTop], region[TopRightSrcRight], region[TopRightSrcBottom],
-//            region[TopRightDstLeft], region[TopRightDstTop], region[TopRightDstRight], region[TopRightDstBottom]
-//        )
-
-        /* CONFIRMED bottom left, visible in the top right corner is the TWO */
-//        spriteSheet.blit(
-//            region[BottomLeftSrcLeft], region [BottomLeftSrcTop], region[BottomLeftSrcRight], region[BottomLeftSrcBottom],
-//            region[BottomLeftDstLeft], region [BottomLeftDstTop], region[BottomLeftDstRight], region[BottomLeftDstBottom]
-//        )
-
-        /* CONFIRMED bottom right, visible in the top left corner is the ONE */
-//        spriteSheet.blit(
-//            region[BottomRightSrcLeft], region [BottomRightSrcTop], region[BottomRightSrcRight], region[BottomRightSrcBottom],
-//            region[BottomRightDstLeft], region [BottomRightDstTop], region[BottomRightDstRight], region[BottomRightDstBottom]
-//        )
     }
 
     private fun getSliverRegion(): Array<Int> {
@@ -309,19 +159,35 @@ class ViewportOrchestrator {
 
     fun destroyOffscreenFramebuffers() {
         for (i in rooofSlivers.indices) {
-            rooofSlivers[i].destroyOffscreenFramebuffer()
-            floorSlivers[i].destroyOffscreenFramebuffer()
+            rooofSlivers[i].releaseTexture()
+            floorSlivers[i].releaseTexture()
         }
 
         spriteSheet.destroyOffscreenFramebuffer()
     }
 
-    private fun getFloorSliver(sliverX: Int, sliverY: Int): OffscreenFrame {
+    fun getFloorSliver(sliverX: Int, sliverY: Int): ViewportSliver {
         return floorSlivers[sliverY * 3 + sliverX]
     }
 
-    private fun getRooofSliver(sliverX: Int, sliverY: Int): OffscreenFrame {
+    private fun getRooofSliver(sliverX: Int, sliverY: Int): ViewportSliver {
         return rooofSlivers[sliverY * 3 + sliverX]
+    }
+
+    fun assignSliverPositionsAndTextures(floorToRender: Array<Sprite2d>, rooofToRender: Array<Sprite2d>) {
+        floorToRender[0].setTexture(floorSlivers[0].textureId)
+        floorToRender[1].setTexture(0)
+        floorToRender[2].setTexture(0)
+        floorToRender[3].setTexture(0)
+
+        rooofToRender[0].setTexture(rooofSlivers[0].textureId)
+        rooofToRender[1].setTexture(0)
+        rooofToRender[2].setTexture(0)
+        rooofToRender[3].setTexture(0)
+
+        floorToRender[0].setPosition(0f, 0f)
+        rooofToRender[0].setPosition(width.toFloat()/2, height.toFloat()/2)
+
     }
 
     companion object {

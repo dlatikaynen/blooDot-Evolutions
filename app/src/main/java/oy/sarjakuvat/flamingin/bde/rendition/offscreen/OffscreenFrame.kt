@@ -120,46 +120,23 @@ class OffscreenFrame {
         GlUtil.checkGlError("drawToOffscreenFramebuffers complete")
     }
 
-    fun blit(
-        srcLeft: Int,
-        srcTop: Int,
-        srcRight: Int,
-        srcBottom: Int,
-        dstLeft: Int,
-        dstTop: Int,
-        dstRight: Int,
-        dstBottom: Int
-    ) {
-        GLES30.glBindFramebuffer(GLES30.GL_READ_FRAMEBUFFER, frameBufferId)
-        GLES30.glBlitFramebuffer(
-            srcLeft, srcTop, srcRight, srcBottom,
-            dstLeft, dstTop, dstRight, dstBottom,
-            GLES30.GL_COLOR_BUFFER_BIT,
-            GLES30.GL_NEAREST
-        )
-
-        var errNo: Int
-        if (GLES30.glGetError().also { errNo = it } != GLES30.GL_NO_ERROR) {
-            Log.w(
-                OffscreenFrame::class.simpleName,
-                "Failed to glBlitFramebuffer with error code 0x${Integer.toHexString(errNo)}"
-            )
-        }
-    }
-
     fun destroyOffscreenFramebuffer() {
         val values = IntArray(1)
         if (frameBufferId != 0) {
             values[0] = renderBufferId
             GLES20.glDeleteRenderbuffers(1, values, 0)
             GlUtil.checkGlError("glDeleteRenderbuffers")
+            renderBufferId = 0
+
             values[0] = frameBufferId
             GLES20.glDeleteFramebuffers(1, values, 0)
             GlUtil.checkGlError("glDeleteFramebuffers")
+            frameBufferId = 0
+
             values[0] = containedTextureId
             GLES20.glDeleteTextures(1, values, 0)
             GlUtil.checkGlError("glDeleteTextures")
-            frameBufferId = 0
+            containedTextureId = 0
         }
     }
 }

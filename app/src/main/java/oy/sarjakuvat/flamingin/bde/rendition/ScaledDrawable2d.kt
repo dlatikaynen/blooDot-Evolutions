@@ -8,42 +8,42 @@ import java.nio.FloatBuffer
 
 /// Zoomable primitive
 class ScaledDrawable2d(shape: ShapePrimitive?) : Drawable2dBase(shape!!) {
-    private var mTweakedTexCoordArray: FloatBuffer? = null
-    private var mScale = 1.0f
-    private var mRecalculate = true
+    private var textureCoordinates: FloatBuffer? = null
+    private var scalingFactor = 1.0f
+    private var recalculationPending = true
 
     fun setScale(scale: Float) {
         if (scale < 0.0f || scale > 1.0f) {
             throw RuntimeException("The scale needs to be in [0..1], $scale is not")
         }
 
-        mScale = scale
-        mRecalculate = true
+        scalingFactor = scale
+        recalculationPending = true
     }
 
     override var textureVertexArray: FloatBuffer?
         get() {
-            if (mRecalculate) {
+            if (recalculationPending) {
                 val parentBuf = super.textureVertexArray
                 val count = parentBuf!!.capacity()
-                if (mTweakedTexCoordArray == null) {
+                if (textureCoordinates == null) {
                     val bb = ByteBuffer.allocateDirect(count * SIZEOF_FLOAT)
                     bb.order(ByteOrder.nativeOrder())
-                    mTweakedTexCoordArray = bb.asFloatBuffer()
+                    textureCoordinates = bb.asFloatBuffer()
                 }
 
-                val fb = mTweakedTexCoordArray
-                val scale = mScale
+                val fb = textureCoordinates
+                val scale = scalingFactor
                 for (i in 0 until count) {
                     var fl = parentBuf[i]
                     fl = (fl - 0.5f) * scale + 0.5f
                     fb!!.put(i, fl)
                 }
 
-                mRecalculate = false
+                recalculationPending = false
             }
 
-            return mTweakedTexCoordArray
+            return textureCoordinates
         }
         set(texCoordArray) {
             super.textureVertexArray = texCoordArray

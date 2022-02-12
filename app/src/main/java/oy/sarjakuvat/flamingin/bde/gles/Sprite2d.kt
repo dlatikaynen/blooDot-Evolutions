@@ -2,7 +2,7 @@ package oy.sarjakuvat.flamingin.bde.gles
 
 import android.opengl.Matrix
 
-class Sprite2d(private val mDrawable: Drawable2dBase) {
+class Sprite2d(private val drawablePrimitive: Drawable2dBase) {
     private val spriteBaseColor: FloatArray = FloatArray(4)
     private val modelViewProjectionMatrix: FloatArray
     private val blankMatrix = FloatArray(16)
@@ -22,6 +22,8 @@ class Sprite2d(private val mDrawable: Drawable2dBase) {
 
     var positionY = 0f
         private set
+
+    val hasTexture : Boolean get() = spriteTextureId != 0
 
     private fun recomputeMatrix() {
         val modelView = modelViewProjectionMatrix
@@ -94,26 +96,26 @@ class Sprite2d(private val mDrawable: Drawable2dBase) {
         program.draw(
             blankMatrix,
             spriteBaseColor,
-            mDrawable.vertexArray,
+            drawablePrimitive.vertexArray,
             0,
-            mDrawable.vertexCount,
-            mDrawable.coordsPerVertex,
-            mDrawable.vertexStride
+            drawablePrimitive.vertexCount,
+            drawablePrimitive.coordsPerVertex,
+            drawablePrimitive.vertexStride
         )
     }
 
     fun draw(program: ShaderTextureProgram, projectionMatrix: FloatArray?) {
         Matrix.multiplyMM(blankMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
         program.draw(
-            blankMatrix, mDrawable.vertexArray, 0,
-            mDrawable.vertexCount, mDrawable.coordsPerVertex,
-            mDrawable.vertexStride, GlUtil.IDENTITY_MATRIX, mDrawable.textureVertexArray,
-            spriteTextureId, mDrawable.texCoordStride
+            blankMatrix, drawablePrimitive.vertexArray, 0,
+            drawablePrimitive.vertexCount, drawablePrimitive.coordsPerVertex,
+            drawablePrimitive.vertexStride, GlUtil.IDENTITY_MATRIX, drawablePrimitive.textureVertexArray,
+            spriteTextureId, drawablePrimitive.texCoordStride
         )
     }
 
     override fun toString(): String {
-        return "[Sprite is $mDrawable at $positionX,$positionY sized $scaleX,$scaleY rotated $rotationAngle colored ${spriteBaseColor[0]},${spriteBaseColor[1]},${spriteBaseColor[2]}"
+        return "[Sprite is $drawablePrimitive at $positionX,$positionY sized $scaleX,$scaleY rotated $rotationAngle colored ${spriteBaseColor[0]},${spriteBaseColor[1]},${spriteBaseColor[2]}"
     }
 
     init {
