@@ -32,6 +32,10 @@ class RenderHandler(rt: RenderThread) : Handler(Looper.myLooper()!!) {
         sendMessage(obtainMessage(MSG_FLAT_SHADING, if (useFlatShading) 1 else 0, 0))
     }
 
+    fun sendTestScrolling(enableTestScrolling: Boolean) {
+        sendMessage(obtainMessage(MSG_TEST_SCROLLING, if (enableTestScrolling) 1 else 0, 0))
+    }
+
     fun sendShutdown() {
         sendMessage(obtainMessage(MSG_SHUTDOWN))
     }
@@ -55,6 +59,7 @@ class RenderHandler(rt: RenderThread) : Handler(Looper.myLooper()!!) {
             }
 
             MSG_FLAT_SHADING -> renderThread.setFlatShading(msg.arg1 != 0)
+            MSG_TEST_SCROLLING -> renderThread.setTestScrolling(msg.arg1 != 0)
             MSG_SHUTDOWN -> renderThread.shutdown()
             else -> throw RuntimeException("Render thread could not handle message: $what is not supported")
         }
@@ -65,6 +70,7 @@ class RenderHandler(rt: RenderThread) : Handler(Looper.myLooper()!!) {
         private const val MSG_SURFACE_CHANGED = 1
         private const val MSG_DO_FRAME = 2
         private const val MSG_FLAT_SHADING = 3
+        private const val MSG_TEST_SCROLLING = 4
         private const val MSG_SHUTDOWN = 5
     }
 }

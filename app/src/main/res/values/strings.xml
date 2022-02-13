@@ -7,5 +7,6 @@
     <string name="surfaceSizeMedium">[medium]</string>
     <string name="surfaceSizeFull">[full]</string>
     <string name="flatShaded">flat shaded</string>
+    <string name="testScrolling">test scrolling</string>
     <string name="title_activity_hardware_scaler">Main Game Loop</string>
 </resources>

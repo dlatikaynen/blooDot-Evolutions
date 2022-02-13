@@ -21,6 +21,7 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
     private var fullScreenWidth = 0
     private var fullScreenHeight = 0
     private var useFlatShading = false
+    private var enableTestScrolling = false
     private var renderThread: RenderThread? = null
 
     private lateinit var screenDimensions: Array<IntArray>
@@ -96,6 +97,7 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
 
         val renderHandler = renderThread!!.handler
         renderHandler?.sendSetFlatShading(useFlatShading)
+        renderHandler?.sendTestScrolling(enableTestScrolling)
         renderHandler?.sendSurfaceCreated()
 
         /* load our working data */
@@ -175,6 +177,13 @@ class GameActivity : Activity(), SurfaceHolder.Callback, Choreographer.FrameCall
         val checkBox = findViewById<CheckBox>(R.id.flatShading_checkbox)
         useFlatShading = checkBox.isChecked
         renderThread!!.handler?.sendSetFlatShading(useFlatShading)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onTestScrollingClicked(view: View) {
+        val checkBox = findViewById<CheckBox>(R.id.testScrolling_checkbox)
+        enableTestScrolling = checkBox.isChecked
+        renderThread!!.handler?.sendTestScrolling(enableTestScrolling)
     }
 
     private fun updateControls() {

@@ -29,6 +29,7 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
     private var textureIdPicture = 0
     private var textureIdCoarse = 0
     private var textureIdFine = 0
+    private var testScrolling = false
     private var useFlatShader = false
 
     private var rectangleVelocityX = 0f
@@ -213,6 +214,10 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
         useFlatShader = useFlatShading
     }
 
+    fun setTestScrolling(enableTestScrolling: Boolean) {
+        testScrolling = enableTestScrolling
+    }
+
     fun doFrame(timeStampNanos: Long) {
         update(timeStampNanos)
         val diff = (System.nanoTime() - timeStampNanos) / 1000000
@@ -267,30 +272,29 @@ class RenderThread(@field:Volatile private var renderSurfaceHolder: SurfaceHolde
 
         spriteRectangle.setPosition(xpos, ypos)
 
-        if(localScrollVelocity > 0) {
-            localScrollOffsetX += localScrollVelocity
-            if(localScrollOffsetX >= 120f) {
-                localScrollOffsetX = 120f
-                localScrollOffsetY = 120f
-                localScrollVelocity = -localScrollVelocity
+        if(testScrolling) {
+            if (localScrollVelocity > 0) {
+                localScrollOffsetX += localScrollVelocity
+                if (localScrollOffsetX >= 120f) {
+                    localScrollOffsetX = 120f
+                    localScrollOffsetY = 120f
+                    localScrollVelocity = -localScrollVelocity
+                } else {
+                    localScrollOffsetY += localScrollVelocity
+                }
+            } else {
+                localScrollOffsetX += localScrollVelocity
+                if (localScrollOffsetX <= -120f) {
+                    localScrollOffsetX = -120f
+                    localScrollOffsetY = -120f
+                    localScrollVelocity = -localScrollVelocity
+                } else {
+                    localScrollOffsetY += localScrollVelocity
+                }
             }
-            else {
-                localScrollOffsetY += localScrollVelocity
-            }
-        }
-        else {
-            localScrollOffsetX += localScrollVelocity
-            if(localScrollOffsetX <= -120f) {
-                localScrollOffsetX = -120f
-                localScrollOffsetY = -120f
-                localScrollVelocity = -localScrollVelocity
-            }
-            else {
-                localScrollOffsetY += localScrollVelocity
-            }
-        }
 
-        moveViewportSlivers()
+            moveViewportSlivers()
+        }
     }
 
     private fun draw() {
