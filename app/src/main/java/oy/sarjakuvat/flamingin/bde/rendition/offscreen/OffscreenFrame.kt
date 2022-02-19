@@ -1,7 +1,6 @@
 package oy.sarjakuvat.flamingin.bde.rendition.offscreen
 
 import android.opengl.GLES20
-import android.opengl.GLES30
 import android.util.Log
 import oy.sarjakuvat.flamingin.bde.gles.*
 import java.lang.RuntimeException

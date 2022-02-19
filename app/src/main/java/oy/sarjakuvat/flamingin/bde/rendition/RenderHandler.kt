@@ -45,7 +45,7 @@ class RenderHandler(rt: RenderThread) : Handler(Looper.myLooper()!!) {
         val what = msg.what
         val renderThread = renderThreadRef.get()
         if (renderThread == null) {
-            Log.w(GameActivity.TAG, "RenderHandler.handleMessage's weak reference is null")
+            Log.w(GameActivity.TAG, "RenderHandler.handleMessage's weak reference died")
             return
         }
 

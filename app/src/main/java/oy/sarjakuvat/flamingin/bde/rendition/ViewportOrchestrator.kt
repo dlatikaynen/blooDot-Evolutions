@@ -2,25 +2,21 @@ package oy.sarjakuvat.flamingin.bde.rendition
 
 import android.graphics.*
 import oy.sarjakuvat.flamingin.bde.BuildConfig
+import oy.sarjakuvat.flamingin.bde.algo.ArenaTesselation
 import oy.sarjakuvat.flamingin.bde.algo.MonominoLookup
 import oy.sarjakuvat.flamingin.bde.gles.ShaderTextureProgram
 import oy.sarjakuvat.flamingin.bde.gles.Sprite2d
-import oy.sarjakuvat.flamingin.bde.level.Arena
 import oy.sarjakuvat.flamingin.bde.level.tilesets.GrayWallTileset
 import oy.sarjakuvat.flamingin.bde.level.tilesets.TileCatalog
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.OffscreenFrame
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilePainterBase.Companion.tileSize
 import oy.sarjakuvat.flamingin.bde.rendition.offscreen.TilesetPainter
-import kotlin.math.ceil
 
 class ViewportOrchestrator {
     private val viewportSlivers: Array<ViewportSliver> = Array(9) { ViewportSliver() }
     private val spriteSheet: OffscreenFrame = OffscreenFrame()
     private var width: Int = 0
     private var height: Int = 0
-
-    private var midpointOffsetX: Int = 640 / 2
-    private var midpointOffsetY: Int = 360 / 2
 
     fun shareWithOffscreenFramebuffers(
         pictureTextureName: Int,
@@ -32,8 +28,6 @@ class ViewportOrchestrator {
     fun prepareOffscreenFramebuffers(newWidth: Int, newHeight: Int, projectionMatrix: FloatArray) {
         width = newWidth
         height = newHeight
-        midpointOffsetX = newWidth / 2
-        midpointOffsetY = newHeight / 2
         spriteSheet.prepareOffscreenFramebuffer(width, height, projectionMatrix)
     }
 
@@ -46,31 +40,44 @@ class ViewportOrchestrator {
         populator.deleteTextureAfterUse(textureName)
         val rooofPopulator = DrawableToTexture(width, height)
         for (i in viewportSlivers.indices) {
-            populateSheet(i, populator, rooofPopulator)
+            val rowSheetInArena = i / 3 - 1
+            val colSheetInArena = i % 3 - 1
+            populateSheet(i, colSheetInArena, rowSheetInArena, populator, rooofPopulator)
         }
 
         rooofPopulator.deleteBitmapAfterUse()
         populator.deleteBitmapAfterUse()
     }
 
-    private fun populateSheet(sliverIndex: Int, floorPopulator: DrawableToTexture, rooofPopulator: DrawableToTexture) {
+    private fun populateSheet(
+        sliverIndex: Int,
+        colSheetInArena: Int,
+        rowSheetInArena: Int,
+        floorPopulator: DrawableToTexture,
+        rooofPopulator: DrawableToTexture
+    ) {
         val viewportSliver = viewportSlivers[sliverIndex]
+        viewportSliver.status = ViewportSliverStatus.Populating
+        val tesselation = ArenaTesselation(
+            width,
+            height,
+            colSheetInArena,
+            rowSheetInArena
+        )
+
+        /* draw it all */
         val floorSink = floorPopulator.sink
         val rooofSink = rooofPopulator.sink
         floorPopulator.clearBitmapBeforeUse()
         rooofPopulator.clearBitmapBeforeUse()
+        viewportSliver.populate(
+            width,
+            height,
+            tesselation,
+            floorSink,
+            rooofSink
+        )
 
-        /* compute the world/viewport coordinate complex */
-        val numTilesX = ceil(width / tileSize.toFloat()).toInt()
-        val gridWidth = numTilesX * tileSize
-        val gridLeftXpx = midpointOffsetX - gridWidth / 2f
-        val numTilesY = ceil(height / tileSize.toFloat()).toInt()
-        val gridHeight = numTilesY * tileSize
-        val gridTopYpx = midpointOffsetY - gridHeight / 2f
-        val arenaGridIndexLeft = Arena.midpointX - numTilesX / 2
-        val arenaGridIndexTop = Arena.midpointY - numTilesY / 2
-
-        viewportSliver.populate(width, height, numTilesX, numTilesY, gridLeftXpx, gridTopYpx, arenaGridIndexLeft, arenaGridIndexTop, floorSink, rooofSink)
         if(BuildConfig.DEBUG) {
             val paint = Paint()
             paint.textSize = 67f
@@ -82,11 +89,12 @@ class ViewportOrchestrator {
             rooofSink.drawText(sliverIndex.toString(), width / 2f, height / 2f + textMetrics.height() / 2f, paint)
             paint.style = Paint.Style.STROKE
             paint.color = Color.CYAN
-            rooofSink.drawText(sliverIndex.toString(), width / 2f, height / 2f + textMetrics.height() / 2f, paint)
+            rooofSink.drawText(sliverIndex.toString(),width / 2f, height / 2f + textMetrics.height() / 2f, paint)
         }
 
         viewportSliver.floorTextureId = floorPopulator.asNewTexture()
         viewportSliver.rooofTextureId = rooofPopulator.asNewTexture()
+        viewportSliver.status = ViewportSliverStatus.Populated
     }
 
     private fun generateTestSheetTexture(populator: DrawableToTexture) {
@@ -156,13 +164,13 @@ class ViewportOrchestrator {
     fun assignSliverPositionsAndTextures(floorToRender: Array<Sprite2d>, rooofToRender: Array<Sprite2d>) {
         floorToRender[0].setTexture(viewportSlivers[0].floorTextureId)
         floorToRender[1].setTexture(viewportSlivers[1].floorTextureId)
-        floorToRender[2].setTexture(viewportSlivers[2].floorTextureId)
-        floorToRender[3].setTexture(viewportSlivers[3].floorTextureId)
+        floorToRender[2].setTexture(viewportSlivers[3].floorTextureId)
+        floorToRender[3].setTexture(viewportSlivers[4].floorTextureId)
 
         rooofToRender[0].setTexture(viewportSlivers[0].rooofTextureId)
         rooofToRender[1].setTexture(viewportSlivers[1].rooofTextureId)
-        rooofToRender[2].setTexture(viewportSlivers[2].rooofTextureId)
-        rooofToRender[3].setTexture(viewportSlivers[3].rooofTextureId)
+        rooofToRender[2].setTexture(viewportSlivers[3].rooofTextureId)
+        rooofToRender[3].setTexture(viewportSlivers[4].rooofTextureId)
 
         assignSliverPositions(floorToRender, rooofToRender, 0f, 0f)
     }
