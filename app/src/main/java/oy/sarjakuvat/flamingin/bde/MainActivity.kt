@@ -81,6 +81,11 @@ class MainActivity : Activity() {
                 "Load"
             ),
             arrayOf(
+                "Settings",
+                "Connect Controllers",
+                "SettingsActivity"
+            ),
+            arrayOf(
                 "Quit",
                 "Close the game",
                 "Exit"
